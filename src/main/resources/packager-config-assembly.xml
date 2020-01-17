@@ -14,7 +14,7 @@
     <fileSets>
         <fileSet>
             <outputDirectory></outputDirectory>
-            <directory>${project.build.directory}/generated-config-package</directory>
+            <directory>${project.build.directory}/openmrs-packager-config/configuration</directory>
         </fileSet>
     </fileSets>
 </assembly>

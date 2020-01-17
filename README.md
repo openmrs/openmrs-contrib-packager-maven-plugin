@@ -130,3 +130,34 @@ which will subsequently be overridden by the third listed dependency, and so for
 maintained within the defining project, which will provide any final additions and file overrides.
 
 There is no current support for merging files, nor for installing a subset of configurations for a given dependency.
+
+#### TODO
+
+* Is invoking maven plugins the right approach?  
+  * What about an alternative that just uses a parent pom defined in a submodule
+  * This parent pom could refer to Mojos that do more specific components of the build such that ultimately the steps are still laid out in the pom.xml
+  
+* Add more sophistication to dependencies
+  * Include resources that match particular patterns or directories
+  * Ability to merge/overwrite within a file, rather that overwrite files completely
+  
+* Add ability to have/support more than 1 constant file (figure out if we can define these resources programmatically rather than only via xml)
+  
+* Extend to packaging distributions (war, omod, config, other resources)
+
+* Extend to building omods (eliminate boilerplate and gain consistency in module pom.xml code)
+
+* Add useful validations
+  * HtmlForms?
+  * Concepts and other Metadata?
+
+* Add ability to generate code/configurations
+  * Generate global property configuration from constants.yml
+  * Generate jsonKeyValue configuration from constants.yml
+  * Generate initializer CSV files from yml constant files
+
+* Unit and integration tests
+
+* CI pipeline to build deploy to maven on commit and release on demand
+
+* Discuss approach and desirability to more broadly adopt across OpenMRS
