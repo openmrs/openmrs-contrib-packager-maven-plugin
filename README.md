@@ -41,8 +41,10 @@ The top-level POM serves two purposes:
 2. To define the usage of this plugin for packaging.  The below should be copied exactly after the packaging element above:
 
 ```xml
-<build>
-    <filters><filter>${project.build.directory}/constants.properties</filter></filters>
+  <build>
+    <filters>
+      <filter>${project.build.directory}/openmrs-packager-config/constants.properties</filter>
+    </filters>
     <plugins>
       <plugin>
         <groupId>org.openmrs.maven.plugins</groupId>
@@ -50,15 +52,30 @@ The top-level POM serves two purposes:
         <version>1.0-SNAPSHOT</version>
         <executions>
           <execution>
+            <id>generate-resource-filters</id>
             <phase>generate-resources</phase>
             <goals>
-              <goal>package-config</goal>
+              <goal>generate-resource-filters</goal>
+            </goals>
+          </execution>
+          <execution>
+            <id>compile-configurations</id>
+            <phase>compile</phase>
+            <goals>
+              <goal>compile-configurations</goal>
+            </goals>
+          </execution>
+          <execution>
+            <id>package-configurations</id>
+            <phase>package</phase>
+            <goals>
+              <goal>package-configurations</goal>
             </goals>
           </execution>
         </executions>
       </plugin>
     </plugins>
-</build>
+  </build>
 ```
 
 #### Adding Configuration Files
@@ -130,6 +147,23 @@ which will subsequently be overridden by the third listed dependency, and so for
 maintained within the defining project, which will provide any final additions and file overrides.
 
 There is no current support for merging files, nor for installing a subset of configurations for a given dependency.
+
+#### Usage
+
+`mvn clean compile` - Will generate your configurations into "target/openmrs-packager-config/configuration"
+`mvn clean package` - Will compile as above, and generate a zip package at "target/${artifactId}-${version}.zip"
+
+In order to facilitate deploying configurations easily into an OpenMRS SDK server, one can add an additional parameter
+to either of the above commands to specify that the compiled configuration should also be copied to an existing 
+OpenMRS SDK server:
+
+`mvn clean compile -DserverId=wellbody` - Will compile as above, and copy the resulting configuration to `~/openmrs/wellbody/configuration`
+
+If the configuration package you are building will be depended upon by another configuration package, you must "install" it
+in order for the other package to be able to pick it up.
+
+`mvn clean install` - Will compile and package as above, and install as an available dependency on your system
+
 
 #### TODO
 
