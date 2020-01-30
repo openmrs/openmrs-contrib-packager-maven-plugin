@@ -25,6 +25,7 @@ import java.util.List;
 
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import org.apache.commons.io.FileUtils;
 import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.plugins.annotations.LifecyclePhase;
 import org.apache.maven.plugins.annotations.Mojo;
@@ -161,10 +162,22 @@ public class CompileConfigurationsMojo extends AbstractPackagerConfigMojo {
 		}
 		else {
 			getLog().warn("Configuration directory already exists, deleting and recreating " + configurationDir);
-			configurationDir.delete();
+			deleteDirectory(configurationDir);
 		}
 		configurationDir.mkdir();
 		copyAndFilterConfiguration(getCompiledConfigurationDir(), configurationDir);
 		getLog().warn("Configuration copied into: " + configurationDir);
+	}
+
+	/**
+	 * Utility method to forcibly delete a directory recursively, including files within
+	 */
+	private void deleteDirectory(File dir) throws MojoExecutionException {
+		try {
+			FileUtils.deleteDirectory(dir);
+		}
+		catch (Exception e) {
+			throw new MojoExecutionException("Unale to delete directory: " + dir, e);
+		}
 	}
 }
