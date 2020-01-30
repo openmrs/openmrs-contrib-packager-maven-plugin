@@ -14,9 +14,9 @@
     </properties>
 
     <scm>
-        <connection>scm:git:git@github.com:PIH/openmrs-packager-maven-plugin.git</connection>
-        <developerConnection>scm:git:git@github.com:PIH/openmrs-packager-maven-plugin.git</developerConnection>
-        <url>scm:git:git@github.com:PIH/openmrs-packager-maven-plugin.git</url>
+        <connection>scm:git:git@github.com:openmrs/openmrs-contrib-packager-maven-plugin.git</connection>
+        <developerConnection>scm:git:git@github.com:openmrs/openmrs-contrib-packager-maven-plugin.git</developerConnection>
+        <url>scm:git:git@github.com:openmrs/openmrs-contrib-packager-maven-plugin.git</url>
         <tag>HEAD</tag>
     </scm>
 
