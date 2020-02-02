@@ -116,7 +116,7 @@
 
     <distributionManagement>
         <repository>
-            <id>openmrs-repo</id>
+            <id>openmrs-repo-releases</id>
             <name>OpenMRS Releases Repo</name>
             <url>http://mavenrepo.openmrs.org/nexus/content/repositories/releases</url>
         </repository>
