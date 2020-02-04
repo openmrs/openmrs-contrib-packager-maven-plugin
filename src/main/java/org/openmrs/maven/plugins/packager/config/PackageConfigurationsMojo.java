@@ -51,7 +51,7 @@ public class PackageConfigurationsMojo extends AbstractPackagerConfigMojo {
 
 		// Write descriptor xml
 		String assemblyFileName = "packager-config-assembly.xml";
-		File assemblyFile = new File(getBuildDir(), assemblyFileName);
+		File assemblyFile = new File(getPluginBuildDir(), assemblyFileName);
 		copyResourceToFile(assemblyFileName, assemblyFile);
 
 		executeMojo(

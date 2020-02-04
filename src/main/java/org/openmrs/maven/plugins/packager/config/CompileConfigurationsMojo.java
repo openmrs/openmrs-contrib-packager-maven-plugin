@@ -27,6 +27,7 @@ import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.apache.commons.io.FileUtils;
 import org.apache.maven.plugin.MojoExecutionException;
+import org.apache.maven.plugin.MojoFailureException;
 import org.apache.maven.plugins.annotations.LifecyclePhase;
 import org.apache.maven.plugins.annotations.Mojo;
 import org.apache.maven.plugins.annotations.Parameter;
@@ -50,12 +51,21 @@ public class CompileConfigurationsMojo extends AbstractPackagerConfigMojo {
 	/**
 	 * @throws MojoExecutionException if an error occurs
 	 */
-	public void execute() throws MojoExecutionException {
+	public void execute() throws MojoExecutionException, MojoFailureException {
 		addConfigurationDependencies();
 		copyAndFilterConfiguration(sourceDir, getCompiledConfigurationDir());
 		String openmrsServerId = System.getProperty("serverId");
 		if (openmrsServerId != null) {
 			copyConfigurationToLocalServer(openmrsServerId);
+		}
+		String watch = System.getProperty("watch");
+		if (Boolean.parseBoolean(watch)) {
+			if (openmrsServerId == null) {
+				throw new MojoExecutionException("Watching a project is only supported if you specify a serverId");
+			}
+			ConfigurationWatcher watcher = new ConfigurationWatcher(getLog(), this, 5*1000);
+			watcher.registerDirectoryToWatch(getBaseDir(), getBuildDir());
+			watcher.watch();
 		}
 	}
 
@@ -71,7 +81,7 @@ public class CompileConfigurationsMojo extends AbstractPackagerConfigMojo {
 				for (ConfigDependency d : configDependencies) {
 					getLog().info("Retrieving and unpacking dependency: " + d);
 					getLog().info("Adding dependency: " + d);
-					File unpackDir = new File(getBuildDir(), "dependencies/" + d.toString("_"));
+					File unpackDir = new File(getPluginBuildDir(), "dependencies/" + d.toString("_"));
 					unpackDependency(d, unpackDir);
 					copyAndFilterConfiguration(unpackDir, getCompiledConfigurationDir());
 				}
@@ -89,7 +99,7 @@ public class CompileConfigurationsMojo extends AbstractPackagerConfigMojo {
 	 * @return the file that contains the compiled configuration artifacts
 	 */
 	public File getCompiledConfigurationDir() {
-		return new File(getBuildDir(), "configuration");
+		return new File(getPluginBuildDir(), "configuration");
 	}
 
 	/**
@@ -166,7 +176,7 @@ public class CompileConfigurationsMojo extends AbstractPackagerConfigMojo {
 		}
 		configurationDir.mkdir();
 		copyAndFilterConfiguration(getCompiledConfigurationDir(), configurationDir);
-		getLog().warn("Configuration copied into: " + configurationDir);
+		getLog().info("Configuration copied into: " + configurationDir);
 	}
 
 	/**

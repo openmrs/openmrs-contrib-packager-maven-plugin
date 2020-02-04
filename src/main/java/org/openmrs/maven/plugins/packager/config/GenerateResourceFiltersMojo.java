@@ -71,7 +71,7 @@ public class GenerateResourceFiltersMojo extends AbstractPackagerConfigMojo {
 			else {
 				getLog().info("No constant file found at: " + sourceFile);
 			}
-			File targetFile = new File(getBuildDir(), "constants.properties");
+			File targetFile = new File(getPluginBuildDir(), "constants.properties");
 			toStore.store(new FileOutputStream(targetFile), null);
 		}
 		catch (Exception e) {

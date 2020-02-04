@@ -49,10 +49,24 @@ public abstract class AbstractPackagerConfigMojo extends AbstractMojo {
 	}
 
 	/**
-	 * Convenience method to get the project build directory
+	 * Convenience method to get the source directory for this project
+	 */
+	protected File getBaseDir() {
+		return mavenProject.getBasedir();
+	}
+
+	/**
+	 * Convenience method to get the build directory used by all plugins.  This is typically "/target"
 	 */
 	protected File getBuildDir() {
-		File baseBuildDir = new File(mavenProject.getBuild().getDirectory());
+		return new File(mavenProject.getBuild().getDirectory());
+	}
+
+	/**
+	 * Convenience method to get the project build directory
+	 */
+	protected File getPluginBuildDir() {
+		File baseBuildDir = getBuildDir();
 		File pluginBuildDir = new File(baseBuildDir, "openmrs-packager-config");
 		if (!pluginBuildDir.exists()) {
 			pluginBuildDir.mkdirs();
