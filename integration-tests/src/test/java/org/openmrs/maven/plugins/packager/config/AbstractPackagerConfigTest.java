@@ -1,13 +1,11 @@
 package org.openmrs.maven.plugins.packager.config;
 
-import junit.framework.TestCase;
 import org.junit.Assert;
+import org.junit.Test;
 
-public class AbstractPackagerConfigTest extends TestCase {
+public class AbstractPackagerConfigTest {
 
-	/**
-	 * @throws Exception
-	 */
+	@Test
 	public void testThatBuildArtifactsAreInExpectedDirectory() throws Exception {
 
 		ConfigProject configProject = new ConfigProject("config-test-parent");

@@ -4,21 +4,18 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.util.Properties;
 
-import junit.framework.TestCase;
 import org.junit.Assert;
+import org.junit.Test;
 
-public class GenerateResourceFiltersTest extends TestCase {
+public class GenerateResourceFiltersTest {
 
-	/**
-	 * @throws Exception
-	 */
+	@Test
 	public void testYmlFilesParseIntoPropertiesCorrectly() throws Exception {
 		ConfigProject configProject = new ConfigProject("config-test-parent");
 		configProject.executeGoal("clean", "-N", "-X");
 		configProject.executeGoal("compile", "-N", "-X");
 
-		File generatedPropertiesFile = configProject.getBuildFile("constants.properties");
-		configProject.testFileExists(generatedPropertiesFile);
+		File generatedPropertiesFile = configProject.testFileExists("constants.properties");
 		Properties p = new Properties();
 		p.load(new FileInputStream(generatedPropertiesFile));
 
@@ -31,9 +28,7 @@ public class GenerateResourceFiltersTest extends TestCase {
 		Assert.assertEquals("arrayValue3", p.get("constantArray[2]"));
 	}
 
-	/**
-	 * @throws Exception
-	 */
+	@Test
 	public void testPropertiesFilesLoadedCorrectly() throws Exception {
 		ConfigProject parentProject = new ConfigProject("config-test-parent");
 		parentProject.executeGoal("clean", "-N", "-X");
@@ -43,8 +38,7 @@ public class GenerateResourceFiltersTest extends TestCase {
 		childProject.executeGoal("clean", "-N", "-X");
 		childProject.executeGoal("compile", "-N", "-X");
 
-		File generatedPropertiesFile = childProject.getBuildFile("constants.properties");
-		childProject.testFileExists(generatedPropertiesFile);
+		File generatedPropertiesFile = childProject.testFileExists("constants.properties");
 		Properties p = new Properties();
 		p.load(new FileInputStream(generatedPropertiesFile));
 

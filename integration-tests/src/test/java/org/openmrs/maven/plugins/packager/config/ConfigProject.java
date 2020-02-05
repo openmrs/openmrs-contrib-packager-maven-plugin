@@ -44,12 +44,15 @@ public class ConfigProject {
 		verifier.executeGoal(goal);
 	}
 
-	public File getBuildFile(String path) {
-		return new File(pluginBuildDir, path);
+	public File testFileExists(String path) {
+		File file = new File(pluginBuildDir, path);
+		Assert.assertTrue("Checking that " + file + " exists", file.exists());
+		return file;
 	}
 
-	public void testFileExists(File file) {
-		Assert.assertTrue("Checking that " + file + " exists", file.exists());
+	public void testFileDoesNotExist(String path) {
+		File file = new File(pluginBuildDir, path);
+		Assert.assertFalse("Checking that " + file + " does not exist", file.exists());
 	}
 
 	public void testFileContains(File file, String contents) throws Exception {
