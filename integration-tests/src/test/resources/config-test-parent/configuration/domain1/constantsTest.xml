@@ -1,0 +1,12 @@
+<test>
+    <description>This file exists to test that replacement values are applied correctly.</description>
+    <textConstant>${textConstant}</textConstant>
+    <nestedProperty1>${constantWithProperties.property1}</nestedProperty1>
+    <nestedProperty2>${constantWithProperties.property2}</nestedProperty2>
+    <nestedProperty3>${constantWithProperties.property3.propertyValue3Key}</nestedProperty3>
+    <array>${constantArray}</array>
+    <arrayZero>${constantArray[0]}</arrayZero>
+    <arrayOne>${constantArray[1]}</arrayOne>
+    <arrayTwo>${constantArray[2]}</arrayTwo>
+    <variableWithNoReplacementInParent>${missingConstant}</variableWithNoReplacementInParent>
+</test>

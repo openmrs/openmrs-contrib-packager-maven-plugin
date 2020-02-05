@@ -80,25 +80,37 @@ public class GenerateResourceFiltersMojo extends AbstractPackagerConfigMojo {
 	 *   - array notation (eg. object1.nestedArray2[0].property)
 	 */
 	private Properties addJsonNodeToProperties(String propertyName, JsonNode node, Properties p) {
+		getLog().debug("Adding json node to properties: " + propertyName);
 		if (node.isObject()) {
-			getLog().debug("Adding object at:" + propertyName);
+			getLog().debug("Node is an object");
 			ObjectNode objectNode = (ObjectNode) node;
 			for (Iterator<Map.Entry<String, JsonNode>> i = objectNode.fields(); i.hasNext();) {
 				Map.Entry<String, JsonNode> entry = i.next();
-				propertyName += (propertyName != null && !propertyName.equals("") ? "." : "") + entry.getKey();
-				addJsonNodeToProperties(propertyName, entry.getValue(), p);
+				String newPropertyName = entry.getKey();
+				if (propertyName != null && !propertyName.equals("")) {
+					newPropertyName = propertyName + "." + newPropertyName;
+				}
+				addJsonNodeToProperties(newPropertyName, entry.getValue(), p);
 			}
 		}
 		else if (node.isArray()) {
+			getLog().debug("Node is an array");
 			ArrayNode arrayNode = (ArrayNode) node;
 			for (int i = 0; i < arrayNode.size(); i++) {
 				addJsonNodeToProperties(propertyName + "[" + i + "]", arrayNode.get(i), p);
 			}
 		}
 		else if (node.isValueNode()) {
+			getLog().debug("Node is a value.");
 			ValueNode valueNode = (ValueNode) node;
-			getLog().debug("Adding value at: " + propertyName + " = " + valueNode.textValue());
-			p.put(propertyName, valueNode.textValue());
+			String value = valueNode.textValue();
+			if (value != null) {
+				getLog().debug("Adding value at: " + propertyName + " = " + value);
+				p.put(propertyName, value);
+			}
+			else {
+				getLog().warn("Value is null");
+			}
 		}
 		return p;
 	}

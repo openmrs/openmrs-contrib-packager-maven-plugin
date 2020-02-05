@@ -1,0 +1,12 @@
+textConstant: "textValue"
+
+constantWithProperties:
+  property1: "propertyValue1"
+  property2: "propertyValue2"
+  property3:
+    propertyValue3Key: "propertyValue3Value"
+
+constantArray:
+  - "arrayValue1"
+  - "arrayValue2"
+  - "arrayValue3"

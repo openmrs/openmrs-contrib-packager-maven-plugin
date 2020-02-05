@@ -1,0 +1,3 @@
+- groupId: "org.pih.emr"
+  artifactId: "openmrs-config-mvnparent"
+  version: "1.0.0-SNAPSHOT"
