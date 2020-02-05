@@ -159,6 +159,14 @@ OpenMRS SDK server:
 
 `mvn clean compile -DserverId=wellbody` - Will compile as above, and copy the resulting configuration to `~/openmrs/wellbody/configuration`
 
+In order to facilitate developing configuration such as htmlforms or other UI configurations without having to manually
+recompile constantly to view changes, there is also a watch option that will continuously redeploy to your specified server.
+If any file change is detected, and there is a pause in changes for 5 seconds or more, this will automatically compile and
+copy the configurations over to your SDK server.  You enable this with the same command as above, and simply append an
+additional argument at the end:
+
+`mvn clean compile -DserverId=wellbody -Dwatch=true`
+
 If the configuration package you are building will be depended upon by another configuration package, you must "install" it
 in order for the other package to be able to pick it up.
 
