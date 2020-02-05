@@ -23,6 +23,9 @@
                         <goals>
                             <goal>generate-resource-filters</goal>
                         </goals>
+                        <configuration>
+                            <sourceFile>${project.basedir}/constants.properties</sourceFile>
+                        </configuration>
                     </execution>
                     <execution>
                         <id>compile-configurations</id>

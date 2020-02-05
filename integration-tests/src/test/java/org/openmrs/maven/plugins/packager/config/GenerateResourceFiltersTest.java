@@ -12,7 +12,7 @@ public class GenerateResourceFiltersTest extends TestCase {
 	/**
 	 * @throws Exception
 	 */
-	public void testYmlFilesHandledCorrectly() throws Exception {
+	public void testYmlFilesParseIntoPropertiesCorrectly() throws Exception {
 		ConfigProject configProject = new ConfigProject("config-test-parent");
 		configProject.executeGoal("clean", "-N", "-X");
 		configProject.executeGoal("compile", "-N", "-X");
@@ -29,6 +29,26 @@ public class GenerateResourceFiltersTest extends TestCase {
 		Assert.assertEquals("arrayValue1", p.get("constantArray[0]"));
 		Assert.assertEquals("arrayValue2", p.get("constantArray[1]"));
 		Assert.assertEquals("arrayValue3", p.get("constantArray[2]"));
+	}
 
+	/**
+	 * @throws Exception
+	 */
+	public void testPropertiesFilesLoadedCorrectly() throws Exception {
+		ConfigProject parentProject = new ConfigProject("config-test-parent");
+		parentProject.executeGoal("clean", "-N", "-X");
+		parentProject.executeGoal("install", "-N", "-X");
+
+		ConfigProject childProject = new ConfigProject("config-test-child");
+		childProject.executeGoal("clean", "-N", "-X");
+		childProject.executeGoal("compile", "-N", "-X");
+
+		File generatedPropertiesFile = childProject.getBuildFile("constants.properties");
+		childProject.testFileExists(generatedPropertiesFile);
+		Properties p = new Properties();
+		p.load(new FileInputStream(generatedPropertiesFile));
+
+		Assert.assertEquals(1, p.size());
+		Assert.assertEquals("testConstantValue", p.get("testConstantProperty"));
 	}
 }
