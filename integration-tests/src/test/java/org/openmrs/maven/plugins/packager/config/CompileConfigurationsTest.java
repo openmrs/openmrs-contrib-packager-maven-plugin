@@ -1,6 +1,8 @@
 package org.openmrs.maven.plugins.packager.config;
 
 import java.io.File;
+import java.io.FileInputStream;
+import java.util.Properties;
 
 import org.junit.Assert;
 import org.junit.Before;
@@ -36,6 +38,18 @@ public class CompileConfigurationsTest {
 		childProject.testFileExists("configuration/domain2/file-from-parent.txt");
 		childProject.testFileExists("configuration/domain2/file-from-child.txt");
 		childProject.testFileExists("configuration/domain3/domain-not-in-parent.txt");
+	}
+
+	@Test
+	public void testDependencyConstantsAreMerged() throws Exception {
+		File childConstants = childProject.testFileExists("configuration/constants.properties");
+		Properties p = new Properties();
+		p.load(new FileInputStream(childConstants));
+		Assert.assertEquals(8, p.size());
+		Assert.assertEquals("testConstantValue", p.getProperty("testConstantProperty")); // From child, not parent
+		Assert.assertEquals("testValueFromChild", p.getProperty("textConstant")); // From both, overridden scalar
+		Assert.assertEquals("testNestedPropertyFromChild", p.getProperty("constantWithProperties.property2")); // From both, overridden object property
+		Assert.assertEquals("propertyValue1", p.getProperty("constantWithProperties.property1")); // From parent, not overridden
 	}
 
 	@Test

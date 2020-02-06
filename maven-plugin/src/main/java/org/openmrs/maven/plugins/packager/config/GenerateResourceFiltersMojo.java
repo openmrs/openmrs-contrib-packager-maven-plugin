@@ -11,7 +11,6 @@ package org.openmrs.maven.plugins.packager.config;
 
 import java.io.File;
 import java.io.FileInputStream;
-import java.io.FileOutputStream;
 import java.util.Iterator;
 import java.util.Map;
 import java.util.Properties;
@@ -48,7 +47,7 @@ public class GenerateResourceFiltersMojo extends AbstractPackagerConfigMojo {
 	 * Copies source properties or yml to target properties
 	 */
 	protected void setupResourceFilters() throws MojoExecutionException {
-		Properties toStore = new Properties();
+		Properties toStore = new ConstantProperties();
 		try {
 			if (sourceFile != null && sourceFile.exists()) {
 				getLog().info("Source file found at: " + sourceFile);
@@ -66,8 +65,8 @@ public class GenerateResourceFiltersMojo extends AbstractPackagerConfigMojo {
 			else {
 				getLog().info("No constant file found at: " + sourceFile);
 			}
-			File targetFile = new File(getPluginBuildDir(), "constants.properties");
-			toStore.store(new FileOutputStream(targetFile), null);
+			ensureCompiledConfigurationDir();
+			savePropertiesToFile(toStore, getCompiledConstantsFile());
 		}
 		catch (Exception e) {
 			throw new MojoExecutionException("Unable to setup resource filter", e);

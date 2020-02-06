@@ -17,6 +17,7 @@ import static org.twdata.maven.mojoexecutor.MojoExecutor.plugin;
 
 import java.io.File;
 import java.util.List;
+import java.util.Properties;
 
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -26,6 +27,7 @@ import org.apache.maven.plugin.MojoFailureException;
 import org.apache.maven.plugins.annotations.LifecyclePhase;
 import org.apache.maven.plugins.annotations.Mojo;
 import org.apache.maven.plugins.annotations.Parameter;
+import org.codehaus.plexus.util.PropertyUtils;
 
 /**
  * The purpose of this Mojo is to pull in dependent artifacts that contain
@@ -70,6 +72,15 @@ public class CompileConfigurationsMojo extends AbstractPackagerConfigMojo {
 	protected void addConfigurationDependencies() throws MojoExecutionException {
 		if (dependenciesFile != null && dependenciesFile.exists()) {
 			getLog().info("Dependency configuration file found at: " + dependenciesFile);
+
+			// As each dependency is loaded in, it will overwrite the constants file.
+			// What we want are all of the dependency constants loaded in order, with each able to override any previous
+			// entries, and with the project's defined constants taking final precedence
+			Properties initialConstants = loadPropertiesFromFile(getCompiledConstantsFile());
+			Properties finalConstants = new ConstantProperties();
+
+			// For each dependency, load it's files into the compiled configuration directory.
+			// For constants, add these to the running collection to write at the end
 			try {
 				ObjectMapper m = getYamlMapper();
 				List<ConfigDependency> configDependencies = m.readValue(dependenciesFile, new TypeReference<List<ConfigDependency>>(){});
@@ -79,22 +90,22 @@ public class CompileConfigurationsMojo extends AbstractPackagerConfigMojo {
 					File unpackDir = new File(getPluginBuildDir(), "dependencies/" + d.toString("_"));
 					unpackDependency(d, unpackDir);
 					copyAndFilterConfiguration(unpackDir, getCompiledConfigurationDir());
+					Properties dependencyConstants = loadPropertiesFromFile(getCompiledConstantsFile());
+					finalConstants.putAll(dependencyConstants);
+					getLog().debug("Added " + dependencyConstants.size() + " constants from dependency");
 				}
 			}
 			catch (Exception e) {
 				throw new MojoExecutionException("Unable to read dependency configurations from " + dependenciesFile, e);
 			}
+			finalConstants.putAll(initialConstants);
+			getLog().debug("Added " + initialConstants.size() + " constants from this project");
+			savePropertiesToFile(finalConstants, getCompiledConstantsFile());
+			getLog().debug("Wrote compiled constants file with " + finalConstants + " entries");
 		}
 		else {
 			getLog().info("No dependency configuration file found at " + dependenciesFile);
 		}
-	}
-
-	/**
-	 * @return the file that contains the compiled configuration artifacts
-	 */
-	public File getCompiledConfigurationDir() {
-		return new File(getPluginBuildDir(), "configuration");
 	}
 
 	/**

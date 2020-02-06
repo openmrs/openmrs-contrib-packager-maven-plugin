@@ -8,7 +8,7 @@
     <packaging>pom</packaging>
     <build>
         <filters>
-            <filter>${project.build.directory}/openmrs-packager-config/constants.properties</filter>
+            <filter>${project.build.directory}/openmrs-packager-config/configuration/constants.properties</filter>
         </filters>
         <plugins>
             <plugin>

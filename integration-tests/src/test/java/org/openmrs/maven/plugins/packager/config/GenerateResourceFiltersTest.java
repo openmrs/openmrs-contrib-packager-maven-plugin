@@ -15,7 +15,7 @@ public class GenerateResourceFiltersTest {
 		configProject.executeGoal("clean", "-N", "-X");
 		configProject.executeGoal("compile", "-N", "-X");
 
-		File generatedPropertiesFile = configProject.testFileExists("constants.properties");
+		File generatedPropertiesFile = configProject.testFileExists("configuration/constants.properties");
 		Properties p = new Properties();
 		p.load(new FileInputStream(generatedPropertiesFile));
 
@@ -38,11 +38,11 @@ public class GenerateResourceFiltersTest {
 		childProject.executeGoal("clean", "-N", "-X");
 		childProject.executeGoal("compile", "-N", "-X");
 
-		File generatedPropertiesFile = childProject.testFileExists("constants.properties");
+		File generatedPropertiesFile = childProject.testFileExists("configuration/constants.properties");
 		Properties p = new Properties();
 		p.load(new FileInputStream(generatedPropertiesFile));
 
-		Assert.assertEquals(1, p.size());
+		Assert.assertEquals(8, p.size());
 		Assert.assertEquals("testConstantValue", p.get("testConstantProperty"));
 	}
 }
