@@ -9,16 +9,6 @@
  */
 package org.openmrs.maven.plugins.packager.config;
 
-import static org.twdata.maven.mojoexecutor.MojoExecutor.configuration;
-import static org.twdata.maven.mojoexecutor.MojoExecutor.element;
-import static org.twdata.maven.mojoexecutor.MojoExecutor.executeMojo;
-import static org.twdata.maven.mojoexecutor.MojoExecutor.goal;
-import static org.twdata.maven.mojoexecutor.MojoExecutor.plugin;
-
-import java.io.File;
-import java.util.List;
-import java.util.Properties;
-
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.apache.commons.io.FileUtils;
@@ -27,7 +17,16 @@ import org.apache.maven.plugin.MojoFailureException;
 import org.apache.maven.plugins.annotations.LifecyclePhase;
 import org.apache.maven.plugins.annotations.Mojo;
 import org.apache.maven.plugins.annotations.Parameter;
-import org.codehaus.plexus.util.PropertyUtils;
+
+import java.io.File;
+import java.util.List;
+import java.util.Properties;
+
+import static org.twdata.maven.mojoexecutor.MojoExecutor.configuration;
+import static org.twdata.maven.mojoexecutor.MojoExecutor.element;
+import static org.twdata.maven.mojoexecutor.MojoExecutor.executeMojo;
+import static org.twdata.maven.mojoexecutor.MojoExecutor.goal;
+import static org.twdata.maven.mojoexecutor.MojoExecutor.plugin;
 
 /**
  * The purpose of this Mojo is to pull in dependent artifacts that contain
@@ -152,7 +151,12 @@ public class CompileConfigurationsMojo extends AbstractPackagerConfigMojo {
 										element("directory", fromDir.getAbsolutePath()),
 										element("filtering", "true")
 								)
-						)
+						),
+                        element("nonFilteredFileExtensions",
+                                element("nonFilteredFileExtension", "zip"),
+                                element("nonFilteredFileExtension", "xls"),
+                                element("nonFilteredFileExtension", "xlsx")
+                        )
 				),
 				getMavenExecutionEnvironment()
 		);
