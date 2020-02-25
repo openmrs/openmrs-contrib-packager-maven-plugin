@@ -3,7 +3,7 @@
 
     <groupId>org.openmrs.maven.plugins</groupId>
     <artifactId>openmrs-packager-maven-plugin-parent</artifactId>
-    <version>1.2.0-SNAPSHOT</version>
+    <version>1.2.0</version>
     <packaging>pom</packaging>
 
     <name>OpenMRS Packager Maven Plugin Parent Project</name>
@@ -16,7 +16,7 @@
         <connection>scm:git:git@github.com:openmrs/openmrs-contrib-packager-maven-plugin.git</connection>
         <developerConnection>scm:git:git@github.com:openmrs/openmrs-contrib-packager-maven-plugin.git</developerConnection>
         <url>scm:git:git@github.com:openmrs/openmrs-contrib-packager-maven-plugin.git</url>
-        <tag>HEAD</tag>
+        <tag>1.2.0</tag>
     </scm>
 
     <modules>
