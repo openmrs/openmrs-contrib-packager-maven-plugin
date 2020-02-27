@@ -16,7 +16,7 @@ An configuration project wishing to use this plug-in should adhere to the follow
 ```
 openmrs-config-sample
   pom.xml
-  constants.properties or constants.yml
+  constants.yml
   dependencies.yml
   configuration/
 ```
@@ -152,6 +152,10 @@ There is no current support for merging files, nor for installing a subset of co
 
 `mvn clean compile` - Will generate your configurations into "target/openmrs-packager-config/configuration"
 `mvn clean package` - Will compile as above, and generate a zip package at "target/${artifactId}-${version}.zip"
+`mvn clean install` - Will compile and package as above, and install as an available dependency on your system
+
+The install goal is necessary if you are working on a dependency and wish for the latest changes to be reflected in a 
+"downstream" configuration package.
 
 In order to facilitate deploying configurations easily into an OpenMRS SDK server, one can add an additional parameter
 to either of the above commands to specify that the compiled configuration should also be copied to an existing 
@@ -161,24 +165,35 @@ OpenMRS SDK server:
 
 In order to facilitate developing configuration such as htmlforms or other UI configurations without having to manually
 recompile constantly to view changes, there is also a watch option that will continuously redeploy to your specified server.
-If any file change is detected, and there is a pause in changes for 5 seconds or more, this will automatically compile and
-copy the configurations over to your SDK server.  You enable this with the same command as above, and simply append an
-additional argument at the end:
+If any file change is detected, this will automatically compile and copy the configurations over to your SDK server.  
 
-`mvn clean compile -DserverId=wellbody -Dwatch=true`
+To enable watching, you run the following:
 
-If the configuration package you are building will be depended upon by another configuration package, you must "install" it
-in order for the other package to be able to pick it up.
+`mvn clean openmrs-packager:watch`
 
-`mvn clean install` - Will compile and package as above, and install as an available dependency on your system
+This is hard coded to watch any files within your project for changes, ignoring the build directory (target) and the .git
+directories.
 
+In order to not continuously deploy as changes are actively being made, there is a built-in delay of 5 seconds between the
+last file modification time, and the time at which the watch will execute.  This delay is configurable to any whole
+number via runtime configuration "delaySeconds":
+
+`mvn clean openmrs-packager:watch -DdelaySeconds=1`
+
+By default, when the watch executes each time, it will run the "install" goal, which compiles, packages (zips), and saves
+the built configuration.  To change this goal, you can do with via the "goal" runtime configuration parameter:
+
+`mvn clean openmrs-packager:watch -Dgoal=compile`
+
+This also allows you to deploy to an OpenMRS server id upon each change.  Simply append the "serverId" runtime
+parameter as defined above.
+
+These can all be included as desired, for example:
+
+`mvn clean openmrs-packager:watch -Dgoal=compile -DserverId=wellbody -DdelaySeconds=3`
 
 #### TODO
 
-* Is invoking maven plugins the right approach?  
-  * What about an alternative that just uses a parent pom defined in a submodule
-  * This parent pom could refer to Mojos that do more specific components of the build such that ultimately the steps are still laid out in the pom.xml
-  
 * Add more sophistication to dependencies
   * Include resources that match particular patterns or directories
   * Ability to merge/overwrite within a file, rather that overwrite files completely
@@ -198,8 +213,4 @@ in order for the other package to be able to pick it up.
   * Generate jsonKeyValue configuration from constants.yml
   * Generate initializer CSV files from yml constant files
 
-* Unit and integration tests
-
-* CI pipeline to build deploy to maven on commit and release on demand
-
-* Discuss approach and desirability to more broadly adopt across OpenMRS
+* Additional unit and integration tests
