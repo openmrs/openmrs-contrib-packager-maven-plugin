@@ -192,6 +192,27 @@ These can all be included as desired, for example:
 
 `mvn clean openmrs-packager:watch -Dgoal=compile -DserverId=wellbody -DdelaySeconds=3`
 
+Watchers not only watch the configuration files they define, but also watch for changes to their dependent libraries.
+This allows for useful "chaining" of watchers.
+
+For example, if you have a parent project that you depend upon, you could watch it for changes:
+
+From "openmrs-config-parent" directory:
+`mvn clean openmrs-packager:watch`
+
+It is important to note that no serverId property was specified on the parent project.  This is not copying directly to
+the server, but is installing new package versions that the child project can detect.
+
+From the "openmrs-config-child" directory:
+`mvn clean openmrs-packager:watch -DserverId=wellbody`
+
+Here is where the serverId is specified, and this will watch for any configuration changes made directly to the child
+project, and _also_ will watch for any changes in the parent project, by way of watching the directory into which new 
+versions of the parent configuration artifact is installed.
+
+The result of the above is that you can have a hierarchy of configurations that depend upon one another and all
+of which automatically build and deploy to an openmrs server during development.
+
 #### TODO
 
 * Add more sophistication to dependencies
