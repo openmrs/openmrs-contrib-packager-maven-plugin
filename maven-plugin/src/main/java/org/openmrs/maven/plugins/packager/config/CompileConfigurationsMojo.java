@@ -194,14 +194,9 @@ public class CompileConfigurationsMojo extends AbstractPackagerConfigMojo {
 				File jsonDomain = new File(getCompiledConfigurationDir(), "jsonkeyvalues");
 				Files.createDirectories(jsonDomain.toPath());
 				File outputFile = new File(jsonDomain, fileName);
-				if (outputFile.exists()) {
-					getLog().warn("Not generating " + fileName + " within jsonkeyvalues, since a file with that name already exists");
-				}
-				else {
-					getLog().info("Generating " + fileName + " in jsonkeyvalues with " + constants.size() + " entries");
-					ObjectMapper mapper = new ObjectMapper();
-					mapper.writerWithDefaultPrettyPrinter().writeValue(outputFile, constants);
-				}
+				getLog().info("Generating " + fileName + " in jsonkeyvalues with " + constants.size() + " entries");
+				ObjectMapper mapper = new ObjectMapper();
+				mapper.writerWithDefaultPrettyPrinter().writeValue(outputFile, constants);
 			}
 			catch (Exception e) {
 				throw new MojoExecutionException("Unable to generate " + fileName + " into jsonkeyvalues domain", e);
