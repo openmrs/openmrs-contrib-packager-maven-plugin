@@ -18,6 +18,7 @@ import java.util.Properties;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.dataformat.yaml.YAMLFactory;
+import org.apache.maven.artifact.repository.ArtifactRepository;
 import org.apache.maven.execution.MavenSession;
 import org.apache.maven.plugin.AbstractMojo;
 import org.apache.maven.plugin.BuildPluginManager;
@@ -59,6 +60,13 @@ public abstract class AbstractPackagerConfigMojo extends AbstractMojo {
 	 */
 	protected File getBuildDir() {
 		return new File(mavenProject.getBuild().getDirectory());
+	}
+
+	/**
+	 * Convenience method to get access to the Local Repository
+	 */
+	protected ArtifactRepository getLocalRepository() {
+		return mavenSession.getLocalRepository();
 	}
 
 	/**
