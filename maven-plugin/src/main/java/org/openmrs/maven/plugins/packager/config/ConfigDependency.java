@@ -9,6 +9,7 @@
  */
 package org.openmrs.maven.plugins.packager.config;
 
+import java.io.File;
 import java.io.Serializable;
 
 /**
@@ -29,6 +30,14 @@ public class ConfigDependency implements Serializable {
 
 	public String toString(String separator) {
 		return groupId + separator + artifactId + separator + version;
+	}
+
+	public File getPathInRepository(String baseDir) {
+		StringBuilder sb = new StringBuilder(baseDir);
+		String ps = System.getProperty("file.separator");
+		sb.append(ps).append(getGroupId().replace(".", ps));
+		sb.append(ps).append(getArtifactId()).append(ps).append(getVersion());
+		return new File(sb.toString());
 	}
 
 	public String getGroupId() {

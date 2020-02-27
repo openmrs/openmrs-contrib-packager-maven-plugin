@@ -9,6 +9,16 @@
  */
 package org.openmrs.maven.plugins.packager.config;
 
+import static org.twdata.maven.mojoexecutor.MojoExecutor.configuration;
+import static org.twdata.maven.mojoexecutor.MojoExecutor.element;
+import static org.twdata.maven.mojoexecutor.MojoExecutor.executeMojo;
+import static org.twdata.maven.mojoexecutor.MojoExecutor.goal;
+import static org.twdata.maven.mojoexecutor.MojoExecutor.plugin;
+
+import java.io.File;
+import java.util.List;
+import java.util.Properties;
+
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.apache.commons.io.FileUtils;
@@ -17,16 +27,6 @@ import org.apache.maven.plugin.MojoFailureException;
 import org.apache.maven.plugins.annotations.LifecyclePhase;
 import org.apache.maven.plugins.annotations.Mojo;
 import org.apache.maven.plugins.annotations.Parameter;
-
-import java.io.File;
-import java.util.List;
-import java.util.Properties;
-
-import static org.twdata.maven.mojoexecutor.MojoExecutor.configuration;
-import static org.twdata.maven.mojoexecutor.MojoExecutor.element;
-import static org.twdata.maven.mojoexecutor.MojoExecutor.executeMojo;
-import static org.twdata.maven.mojoexecutor.MojoExecutor.goal;
-import static org.twdata.maven.mojoexecutor.MojoExecutor.plugin;
 
 /**
  * The purpose of this Mojo is to pull in dependent artifacts that contain
@@ -53,15 +53,6 @@ public class CompileConfigurationsMojo extends AbstractPackagerConfigMojo {
 		String openmrsServerId = System.getProperty("serverId");
 		if (openmrsServerId != null) {
 			copyConfigurationToLocalServer(openmrsServerId);
-		}
-		String watch = System.getProperty("watch");
-		if (Boolean.parseBoolean(watch)) {
-			if (openmrsServerId == null) {
-				throw new MojoExecutionException("Watching a project is only supported if you specify a serverId");
-			}
-			ConfigurationWatcher watcher = new ConfigurationWatcher(getLog(), this, 5*1000);
-			watcher.registerDirectoryToWatch(getBaseDir(), getBuildDir());
-			watcher.watch();
 		}
 	}
 
