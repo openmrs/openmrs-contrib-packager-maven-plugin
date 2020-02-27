@@ -51,6 +51,7 @@ public class CompileConfigurationsMojo extends AbstractPackagerConfigMojo {
 	public void execute() throws MojoExecutionException, MojoFailureException {
 		addConfigurationDependencies();
 		copyAndFilterConfiguration(sourceDir, getCompiledConfigurationDir());
+		generateJsonKeyValuesFromConstants();
 		String openmrsServerId = System.getProperty("serverId");
 		if (openmrsServerId != null) {
 			copyConfigurationToLocalServer(openmrsServerId);
@@ -93,9 +94,6 @@ public class CompileConfigurationsMojo extends AbstractPackagerConfigMojo {
 			getLog().debug("Added " + initialConstants.size() + " constants from this project");
 			savePropertiesToFile(finalConstants, getCompiledConstantsFile());
 			getLog().debug("Wrote compiled constants file with " + finalConstants + " entries");
-
-			// Generate a configuration entry within the jsonkeyvalues domain to make these constants available to Iniz
-			generateJsonKeyValuesFromConstants(finalConstants, "constants.json");
 		}
 		else {
 			getLog().info("No dependency configuration file found at " + dependenciesFile);
@@ -185,10 +183,12 @@ public class CompileConfigurationsMojo extends AbstractPackagerConfigMojo {
 	}
 
 	/**
-	 * Given a set of constants, and a filename, generate and write a json file containing those constants
-	 * into the jsonkeyvalues initializer domain
+	 * Load in the generated constants.properties file and write these into the
+	 * jsonkeyvalues directory to make them available to Iniz, if constants exist
 	 */
-	protected void generateJsonKeyValuesFromConstants(Properties constants, String fileName) throws MojoExecutionException {
+	protected void generateJsonKeyValuesFromConstants() throws MojoExecutionException {
+		Properties constants = loadPropertiesFromFile(getCompiledConstantsFile());
+		String fileName = "constants.json";
 		if (constants != null && !constants.isEmpty()) {
 			try {
 				File jsonDomain = new File(getCompiledConfigurationDir(), "jsonkeyvalues");

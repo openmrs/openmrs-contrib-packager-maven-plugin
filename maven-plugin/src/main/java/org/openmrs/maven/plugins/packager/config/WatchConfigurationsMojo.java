@@ -24,9 +24,13 @@ import java.nio.file.WatchEvent;
 import java.nio.file.WatchKey;
 import java.nio.file.WatchService;
 import java.nio.file.attribute.BasicFileAttributes;
+import java.text.SimpleDateFormat;
+import java.util.Date;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.concurrent.TimeUnit;
 
 import com.fasterxml.jackson.core.type.TypeReference;
@@ -62,12 +66,8 @@ public class WatchConfigurationsMojo extends AbstractPackagerConfigMojo {
 			WatchService watchService = FileSystems.getDefault().newWatchService();
 			Map<WatchKey, Path> registeredKeys = new HashMap<>();
 
-			// Set up directories to ignore
-			// For now, hard code directories to ignore for watching at the build dir and the git dir within a project
-			File[] ignoredPaths = { getBuildDir(), new File(getBaseDir(), ".git") };
-
 			// Register the source directory (recursively)
-			registerDirectoryToWatch(watchService, registeredKeys, getBaseDir(), ignoredPaths);
+			registerDirectoryToWatch(watchService, registeredKeys, getBaseDir());
 
 			// Also watch any dependencies that change in the local repository
 			if (dependenciesFile != null && dependenciesFile.exists()) {
@@ -76,7 +76,7 @@ public class WatchConfigurationsMojo extends AbstractPackagerConfigMojo {
 				if (configDependencies != null) {
 					for (ConfigDependency d : configDependencies) {
 						File dependencyDir = d.getPathInRepository(getLocalRepository().getBasedir());
-						registerDirectoryToWatch(watchService, registeredKeys, dependencyDir, ignoredPaths);
+						registerDirectoryToWatch(watchService, registeredKeys, dependencyDir);
 					}
 				}
 			}
@@ -108,12 +108,10 @@ public class WatchConfigurationsMojo extends AbstractPackagerConfigMojo {
 					// If modifications have been made since the last time the Mojo was executed, then execute it here
 					if (key == null) {
 						if (lastModificationTime > lastMojoExecutionTime) {
-							getLog().info("Changes detected, running: " + goalToRun);
-							long startMs = System.currentTimeMillis();
+							Long startTime = timingInfoLog("Changes detected, running: " + goalToRun, null);
 							try {
 								verifier.executeGoal(goalToRun);
-								long executionMs = System.currentTimeMillis() - startMs;
-								getLog().info("Successfully completed " + goalToRun + " in " + executionMs + "ms");
+								timingInfoLog("Successfully completed " + goalToRun, startTime);
 							}
 							catch (Exception e) {
 								getLog().warn("Error executing " + goalToRun + ". See " + verifier.getLogFileName() + " for details.");
@@ -136,7 +134,7 @@ public class WatchConfigurationsMojo extends AbstractPackagerConfigMojo {
 								// Only mark this as a modification if there are non-ignored paths created
 								// This mainly serves to ensure that the build doesn't run when the target directory is initially created
 								if (Files.isDirectory(resolvedEventContextPath) && event.kind() == ENTRY_CREATE) {
-									boolean isRegistered = registerDirectoryToWatch(watchService, registeredKeys, resolvedEventContextPath.toFile(), ignoredPaths);
+									boolean isRegistered = registerDirectoryToWatch(watchService, registeredKeys, resolvedEventContextPath.toFile());
 									isModificationMade = isModificationMade || isRegistered;
 								}
 								else {
@@ -167,16 +165,19 @@ public class WatchConfigurationsMojo extends AbstractPackagerConfigMojo {
 
 	/**
 	 * Register the passed sourceDirectory to watch recursively.  All subdirectories will be registered to watch as well.
+	 * The build directory and any hidden files are excluded from the watch
 	 * This does not actually start the watcher, it only configures it with specific files or directories, and it can be
 	 * called as many times as needed with specific directories to add with exclusions.
 	 * @return true if any new directories are registered to watch
 	 */
-	public boolean registerDirectoryToWatch(final WatchService watchService, final Map<WatchKey, Path> registeredKeys, File sourceDirectory, final File[] ignoredPaths) {
+	public boolean registerDirectoryToWatch(final WatchService watchService, final Map<WatchKey, Path> registeredKeys, File sourceDirectory) {
 		int numInitialKeys = registeredKeys.size();
+		final Set<Path> pathsIgnored = new HashSet<>();
+		pathsIgnored.add(getBuildDir().toPath());
 		try {
 			Files.walkFileTree(sourceDirectory.toPath(), new SimpleFileVisitor<Path>() {
 				public FileVisitResult preVisitDirectory(Path path, BasicFileAttributes attributes) throws IOException {
-					if (isConfiguredToIgnore(path, ignoredPaths)) {
+					if (isConfiguredToIgnore(path, pathsIgnored)) {
 						getLog().debug("Ignored new path: " + path);
 					}
 					else {
@@ -196,15 +197,46 @@ public class WatchConfigurationsMojo extends AbstractPackagerConfigMojo {
 	}
 
 	/**
-	 * Helper method to check if a path is included in the passed ignore list
-	 * @return true if the passed path is included in the filesOrDirectoriesToIgnore, false otherwise
+	 * Helper method to check if a path is one that should be ignored, or it or its parent has previously been marked as ignored
+	 * @return true if the passed path should be ignored, false otherwise
 	 */
-	private boolean isConfiguredToIgnore(Path pathToCheck, File... filesOrDirectoriesToIgnore) {
-		for (File fileToIgnore : filesOrDirectoriesToIgnore) {
-			if (pathToCheck.startsWith(fileToIgnore.toPath())) {
-				return true;
-			}
+	protected boolean isConfiguredToIgnore(Path pathToCheck, Set<Path> pathsIgnored) {
+		// If the pathToCheck is already in the pathsIgnored list, return true to ignore
+		if (pathsIgnored.contains(pathToCheck)) {
+			return true;
+		}
+		// Ignore all hidden files and files whose parent directories are configured to ignore
+		if (isHiddenFile(pathToCheck) || pathsIgnored.contains(pathToCheck.getParent())) {
+			pathsIgnored.add(pathToCheck);
+			return true;
 		}
 		return false;
+	}
+
+	/**
+	 * Return true if the path is considered hidden
+	 */
+	private boolean isHiddenFile(Path path) {
+		if (path == null) {
+			return false;
+		}
+		File f = path.toFile();
+		return f.isHidden() || f.getName().startsWith(".");
+	}
+
+	/**
+	 * Helper method that will log a message with the time taken since previousMillis, and return new time
+	 */
+	private Long timingInfoLog(String message, Long previousMillis) {
+		Date d = new Date();
+		long currentMillis = d.getTime();
+		SimpleDateFormat df = new SimpleDateFormat("yyyy-MM-dd-HH:mm:ss:sss");
+		String time = df.format(d);
+		String timing = "";
+		if (previousMillis != null) {
+			timing += " (" + (currentMillis-previousMillis) + " ms)";
+		}
+		getLog().info(time + ": " + message + timing);
+		return currentMillis;
 	}
 }
