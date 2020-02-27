@@ -16,6 +16,7 @@ import static org.twdata.maven.mojoexecutor.MojoExecutor.goal;
 import static org.twdata.maven.mojoexecutor.MojoExecutor.plugin;
 
 import java.io.File;
+import java.nio.file.Files;
 import java.util.List;
 import java.util.Properties;
 
@@ -92,6 +93,9 @@ public class CompileConfigurationsMojo extends AbstractPackagerConfigMojo {
 			getLog().debug("Added " + initialConstants.size() + " constants from this project");
 			savePropertiesToFile(finalConstants, getCompiledConstantsFile());
 			getLog().debug("Wrote compiled constants file with " + finalConstants + " entries");
+
+			// Generate a configuration entry within the jsonkeyvalues domain to make these constants available to Iniz
+			generateJsonKeyValuesFromConstants(finalConstants, "constants.json");
 		}
 		else {
 			getLog().info("No dependency configuration file found at " + dependenciesFile);
@@ -178,6 +182,34 @@ public class CompileConfigurationsMojo extends AbstractPackagerConfigMojo {
 		configurationDir.mkdir();
 		copyAndFilterConfiguration(getCompiledConfigurationDir(), configurationDir);
 		getLog().info("Configuration copied into: " + configurationDir);
+	}
+
+	/**
+	 * Given a set of constants, and a filename, generate and write a json file containing those constants
+	 * into the jsonkeyvalues initializer domain
+	 */
+	protected void generateJsonKeyValuesFromConstants(Properties constants, String fileName) throws MojoExecutionException {
+		if (constants != null && !constants.isEmpty()) {
+			try {
+				File jsonDomain = new File(getCompiledConfigurationDir(), "jsonkeyvalues");
+				Files.createDirectories(jsonDomain.toPath());
+				File outputFile = new File(jsonDomain, fileName);
+				if (outputFile.exists()) {
+					getLog().warn("Not generating " + fileName + " within jsonkeyvalues, since a file with that name already exists");
+				}
+				else {
+					getLog().info("Generating " + fileName + " in jsonkeyvalues with " + constants.size() + " entries");
+					ObjectMapper mapper = new ObjectMapper();
+					mapper.writerWithDefaultPrettyPrinter().writeValue(outputFile, constants);
+				}
+			}
+			catch (Exception e) {
+				throw new MojoExecutionException("Unable to generate " + fileName + " into jsonkeyvalues domain", e);
+			}
+		}
+		else {
+			getLog().debug("Not generating " + fileName + " in jsonkeyvalues as no constants exist");
+		}
 	}
 
 	/**
