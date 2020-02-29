@@ -16,6 +16,7 @@ import static org.twdata.maven.mojoexecutor.MojoExecutor.goal;
 import static org.twdata.maven.mojoexecutor.MojoExecutor.plugin;
 
 import java.io.File;
+import java.nio.file.Files;
 import java.util.List;
 import java.util.Properties;
 
@@ -50,6 +51,7 @@ public class CompileConfigurationsMojo extends AbstractPackagerConfigMojo {
 	public void execute() throws MojoExecutionException, MojoFailureException {
 		addConfigurationDependencies();
 		copyAndFilterConfiguration(sourceDir, getCompiledConfigurationDir());
+		generateJsonKeyValuesFromConstants();
 		String openmrsServerId = System.getProperty("serverId");
 		if (openmrsServerId != null) {
 			copyConfigurationToLocalServer(openmrsServerId);
@@ -178,6 +180,31 @@ public class CompileConfigurationsMojo extends AbstractPackagerConfigMojo {
 		configurationDir.mkdir();
 		copyAndFilterConfiguration(getCompiledConfigurationDir(), configurationDir);
 		getLog().info("Configuration copied into: " + configurationDir);
+	}
+
+	/**
+	 * Load in the generated constants.properties file and write these into the
+	 * jsonkeyvalues directory to make them available to Iniz, if constants exist
+	 */
+	protected void generateJsonKeyValuesFromConstants() throws MojoExecutionException {
+		Properties constants = loadPropertiesFromFile(getCompiledConstantsFile());
+		String fileName = "constants.json";
+		if (constants != null && !constants.isEmpty()) {
+			try {
+				File jsonDomain = new File(getCompiledConfigurationDir(), "jsonkeyvalues");
+				Files.createDirectories(jsonDomain.toPath());
+				File outputFile = new File(jsonDomain, fileName);
+				getLog().info("Generating " + fileName + " in jsonkeyvalues with " + constants.size() + " entries");
+				ObjectMapper mapper = new ObjectMapper();
+				mapper.writerWithDefaultPrettyPrinter().writeValue(outputFile, constants);
+			}
+			catch (Exception e) {
+				throw new MojoExecutionException("Unable to generate " + fileName + " into jsonkeyvalues domain", e);
+			}
+		}
+		else {
+			getLog().debug("Not generating " + fileName + " in jsonkeyvalues as no constants exist");
+		}
 	}
 
 	/**

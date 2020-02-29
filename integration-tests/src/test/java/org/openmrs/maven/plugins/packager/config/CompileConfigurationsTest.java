@@ -4,6 +4,7 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.util.Properties;
 
+import org.apache.commons.io.FileUtils;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
@@ -63,6 +64,15 @@ public class CompileConfigurationsTest {
 		parentProject.testFileContains(xmlFile, "<arrayOne>arrayValue2</arrayOne>");
 		parentProject.testFileContains(xmlFile, "<arrayTwo>arrayValue3</arrayTwo>");
 		parentProject.testFileContains(xmlFile, "<variableWithNoReplacementInParent>${missingConstant}</variableWithNoReplacementInParent>");
+	}
+
+	@Test
+	public void testJsonKeyValuesAreGenerated() throws Exception {
+		File expectedFile = childProject.testFileExists("configuration/jsonkeyvalues/constants.json");
+		String expectedContents = FileUtils.readFileToString(expectedFile, "UTF-8").trim();
+		Assert.assertTrue(expectedContents.startsWith("{"));
+		Assert.assertTrue(expectedContents.endsWith("}"));
+		Assert.assertTrue(expectedContents.contains("\"textConstant\" : \"testValueFromChild\""));
 	}
 
 	// TBD: Test copy to server
