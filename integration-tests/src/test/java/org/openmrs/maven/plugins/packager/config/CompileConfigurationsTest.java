@@ -1,13 +1,13 @@
 package org.openmrs.maven.plugins.packager.config;
 
-import java.io.File;
-import java.io.FileInputStream;
-import java.util.Properties;
-
 import org.apache.commons.io.FileUtils;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
+
+import java.io.File;
+import java.io.FileInputStream;
+import java.util.Properties;
 
 public class CompileConfigurationsTest {
 
