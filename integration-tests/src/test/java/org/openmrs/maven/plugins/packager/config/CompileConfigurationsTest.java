@@ -42,6 +42,12 @@ public class CompileConfigurationsTest {
 	}
 
 	@Test
+    public void filesAreOverwritten() throws Exception {
+	    File overrideFile = childProject.testFileExists("configuration/domain2/file-override.png");
+	    childProject.testFileContains(overrideFile, "override file");
+    }
+
+	@Test
 	public void testDependencyConstantsAreMerged() throws Exception {
 		File childConstants = childProject.testFileExists("configuration/constants.properties");
 		Properties p = new Properties();
