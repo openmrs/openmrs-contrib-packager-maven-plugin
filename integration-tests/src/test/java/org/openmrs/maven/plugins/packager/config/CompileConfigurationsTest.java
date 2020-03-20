@@ -1,13 +1,13 @@
 package org.openmrs.maven.plugins.packager.config;
 
-import java.io.File;
-import java.io.FileInputStream;
-import java.util.Properties;
-
 import org.apache.commons.io.FileUtils;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
+
+import java.io.File;
+import java.io.FileInputStream;
+import java.util.Properties;
 
 public class CompileConfigurationsTest {
 
@@ -40,6 +40,12 @@ public class CompileConfigurationsTest {
 		childProject.testFileExists("configuration/domain2/file-from-child.txt");
 		childProject.testFileExists("configuration/domain3/domain-not-in-parent.txt");
 	}
+
+	@Test
+    public void filesAreOverwritten() throws Exception {
+	    File overrideFile = childProject.testFileExists("configuration/domain2/file-override.png");
+	    childProject.testFileContains(overrideFile, "override file");
+    }
 
 	@Test
 	public void testDependencyConstantsAreMerged() throws Exception {
