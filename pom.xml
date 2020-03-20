@@ -21,6 +21,7 @@
 
     <modules>
         <module>maven-plugin</module>
+        <module>integration-tests</module>
     </modules>
 
     <profiles>
