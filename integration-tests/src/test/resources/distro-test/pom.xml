@@ -1,0 +1,73 @@
+<project>
+    <modelVersion>4.0.0</modelVersion>
+    <groupId>org.openmrs.maven.plugins</groupId>
+    <artifactId>openmrs-packager-maven-plugin-distro-test</artifactId>
+    <name>Test Distro</name>
+    <description>This is a test distribution created by packager testing</description>
+    <version>1.0.0-SNAPSHOT</version>
+    <packaging>jar</packaging>
+
+    <properties>
+        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+        <openMRSVersion>1.9.11</openMRSVersion>
+        <calculationVersion>1.2</calculationVersion>
+        <serializationVersion>0.2.14</serializationVersion>
+        <sysadminOwaVersion>1.2</sysadminOwaVersion>
+    </properties>
+
+    <dependencies>
+        <dependency>
+            <groupId>org.openmrs.web</groupId>
+            <artifactId>openmrs-webapp</artifactId>
+            <version>${openMRSVersion}</version>
+            <type>war</type>
+        </dependency>
+        <dependency>
+            <groupId>org.openmrs.module</groupId>
+            <artifactId>calculation-omod</artifactId>
+            <version>${calculationVersion}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.openmrs.module</groupId>
+            <artifactId>serialization.xstream-omod</artifactId>
+            <version>${serializationVersion}</version>
+            <type>omod</type>
+        </dependency>
+    </dependencies>
+
+    <build>
+        <plugins>
+            <plugin>
+                <groupId>org.openmrs.maven.plugins</groupId>
+                <artifactId>openmrs-packager-maven-plugin</artifactId>
+                <version>1.5.0-SNAPSHOT</version>
+                <executions>
+                    <execution>
+                        <id>build-distro-properties</id>
+                        <phase>compile</phase>
+                        <goals>
+                            <goal>build-distro-properties</goal>
+                        </goals>
+                        <configuration>
+                            <owas>
+                                <owa>
+                                    <artifactId>openmrs-owa-sysadmin</artifactId>
+                                    <version>${sysadminOwaVersion}</version>
+                                </owa>
+                            </owas>
+                        </configuration>
+                    </execution>
+                </executions>
+            </plugin>
+        </plugins>
+    </build>
+
+    <repositories>
+        <repository>
+            <id>openmrs-repo</id>
+            <name>OpenMRS Nexus Repository</name>
+            <url>http://mavenrepo.openmrs.org/nexus/content/repositories/public</url>
+        </repository>
+    </repositories>
+
+</project>

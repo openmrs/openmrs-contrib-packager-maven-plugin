@@ -7,7 +7,7 @@
  * Copyright (C) OpenMRS Inc. OpenMRS is a registered trademark and the OpenMRS
  * graphic logo is a trademark of OpenMRS Inc.
  */
-package org.openmrs.maven.plugins.packager.config;
+package org.openmrs.maven.plugins.packager.distro;
 
 import static org.twdata.maven.mojoexecutor.MojoExecutor.configuration;
 import static org.twdata.maven.mojoexecutor.MojoExecutor.element;
@@ -16,20 +16,17 @@ import static org.twdata.maven.mojoexecutor.MojoExecutor.goal;
 import static org.twdata.maven.mojoexecutor.MojoExecutor.plugin;
 
 import java.io.File;
-import java.io.FileOutputStream;
-import java.io.InputStream;
-import java.io.OutputStream;
 
-import org.apache.commons.io.IOUtils;
 import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.plugins.annotations.LifecyclePhase;
 import org.apache.maven.plugins.annotations.Mojo;
+import org.openmrs.maven.plugins.packager.config.AbstractPackagerConfigMojo;
 
 /**
- * The purpose of this Mojo is to package up the compiled configurations into a Zip artifact
+ * The purpose of this Mojo is to package up an OpenMRS distribution into a Zip artifact
  */
-@Mojo(name = "package-configurations", defaultPhase = LifecyclePhase.PACKAGE)
-public class PackageConfigurationsMojo extends AbstractPackagerConfigMojo {
+@Mojo(name = "package-distribution", defaultPhase = LifecyclePhase.PACKAGE)
+public class PackageDistributionMojo extends AbstractPackagerConfigMojo {
 
 	/**
 	 * @throws MojoExecutionException if an error occurs
@@ -45,7 +42,7 @@ public class PackageConfigurationsMojo extends AbstractPackagerConfigMojo {
 		getLog().info("Creating archive");
 
 		// Write descriptor xml
-		String assemblyFileName = "packager-config-assembly.xml";
+		String assemblyFileName = "packager-distro-assembly.xml";
 		File assemblyFile = new File(getPluginBuildDir(), assemblyFileName);
 		copyResourceToFile(assemblyFileName, assemblyFile);
 

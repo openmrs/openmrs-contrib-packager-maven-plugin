@@ -9,65 +9,18 @@
  */
 package org.openmrs.maven.plugins.packager.config;
 
-import static org.twdata.maven.mojoexecutor.MojoExecutor.executionEnvironment;
-
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.util.Properties;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.dataformat.yaml.YAMLFactory;
-import org.apache.maven.artifact.repository.ArtifactRepository;
-import org.apache.maven.execution.MavenSession;
-import org.apache.maven.plugin.AbstractMojo;
-import org.apache.maven.plugin.BuildPluginManager;
 import org.apache.maven.plugin.MojoExecutionException;
-import org.apache.maven.plugins.annotations.Component;
-import org.apache.maven.project.MavenProject;
-import org.twdata.maven.mojoexecutor.MojoExecutor;
+import org.openmrs.maven.plugins.packager.AbstractPackagerMojo;
 
 /**
  * Packages a standard set of OpenMRS configurations
  */
-public abstract class AbstractPackagerConfigMojo extends AbstractMojo {
-
-	@Component
-	private MavenProject mavenProject;
-
-	@Component
-	private MavenSession mavenSession;
-
-	@Component
-	private BuildPluginManager pluginManager;
-
-	/**
-	 * Convenience method to get the execution environment for invoking other Maven plugins
-	 */
-	protected MojoExecutor.ExecutionEnvironment getMavenExecutionEnvironment() {
-		return executionEnvironment(mavenProject, mavenSession, pluginManager);
-	}
-
-	/**
-	 * Convenience method to get the source directory for this project
-	 */
-	protected File getBaseDir() {
-		return mavenProject.getBasedir();
-	}
-
-	/**
-	 * Convenience method to get the build directory used by all plugins.  This is typically "/target"
-	 */
-	protected File getBuildDir() {
-		return new File(mavenProject.getBuild().getDirectory());
-	}
-
-	/**
-	 * Convenience method to get access to the Local Repository
-	 */
-	protected ArtifactRepository getLocalRepository() {
-		return mavenSession.getLocalRepository();
-	}
+public abstract class AbstractPackagerConfigMojo extends AbstractPackagerMojo {
 
 	/**
 	 * Convenience method to get the project build directory
@@ -131,12 +84,5 @@ public abstract class AbstractPackagerConfigMojo extends AbstractMojo {
 		catch (Exception e) {
 			throw new MojoExecutionException("Unable to write properties to file: " + file, e);
 		}
-	}
-
-	/**
-	 * @return a standard Yaml mapper that can be used by all Yaml processing Mojos
-	 */
-	protected ObjectMapper getYamlMapper() {
-		return new ObjectMapper(new YAMLFactory());
 	}
 }
