@@ -17,7 +17,7 @@ public class BuildDistroPropertiesTest {
 		distroProject.executeGoal("clean", "-N", "-X");
 		distroProject.executeGoal("package", "-N", "-X");
 
-		File distroProps = distroProject.testFileExists("sources/openmrs-distro.properties");
+		File distroProps = distroProject.testFileExists("build-distro-properties/openmrs-distro.properties");
 		Properties p = new Properties();
 		p.load(new FileInputStream(distroProps));
 		Assert.assertEquals(8, p.size());

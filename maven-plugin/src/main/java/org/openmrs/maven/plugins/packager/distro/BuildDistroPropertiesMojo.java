@@ -78,7 +78,7 @@ public class BuildDistroPropertiesMojo extends AbstractPackagerDistroMojo {
 		// Add remaining standard properties
 		props.put("db.h2.supported", "false");
 
-		File outputFile = new File(getSourceDir(), "openmrs-distro.properties");
+		File outputFile = new File(getPluginBuildDir(), "openmrs-distro.properties");
 		List<String> outputLines = new ArrayList<>();
 		for (String key : props.keySet()) {
 			String val = props.get(key);
@@ -99,7 +99,7 @@ public class BuildDistroPropertiesMojo extends AbstractPackagerDistroMojo {
 						element("includeEmptyDirs", "true"),
 						element("resources",
 								element("resource",
-										element("directory", getSourceDir().getAbsolutePath()),
+										element("directory", getPluginBuildDir().getAbsolutePath()),
 										element("filtering", "false")
 								)
 						)
@@ -155,8 +155,9 @@ public class BuildDistroPropertiesMojo extends AbstractPackagerDistroMojo {
 	/**
 	 * @return the directory into which to write the resources
 	 */
-	public File getSourceDir() {
-		File sourcesDir = new File(getPluginBuildDir(), "sources");
+	@Override
+	public File getPluginBuildDir() {
+		File sourcesDir = new File(super.getPluginBuildDir(), "build-distro-properties");
 		if (!sourcesDir.exists()) {
 			sourcesDir.mkdirs();
 		}

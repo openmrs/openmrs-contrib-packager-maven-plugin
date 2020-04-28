@@ -58,4 +58,16 @@ public class PackageDistributionMojo extends AbstractPackagerConfigMojo {
 				getMavenExecutionEnvironment()
 		);
 	}
+
+	/**
+	 * @return the directory into which the work for this plugin is performed
+	 */
+	@Override
+	public File getPluginBuildDir() {
+		File sourcesDir = new File(super.getPluginBuildDir(), "package-distribution");
+		if (!sourcesDir.exists()) {
+			sourcesDir.mkdirs();
+		}
+		return sourcesDir;
+	}
 }
