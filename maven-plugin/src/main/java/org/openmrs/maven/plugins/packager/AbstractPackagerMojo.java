@@ -18,6 +18,7 @@ import java.io.OutputStream;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.dataformat.yaml.YAMLFactory;
+import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.IOUtils;
 import org.apache.maven.artifact.repository.ArtifactRepository;
 import org.apache.maven.execution.MavenSession;
@@ -25,6 +26,7 @@ import org.apache.maven.plugin.AbstractMojo;
 import org.apache.maven.plugin.BuildPluginManager;
 import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.plugins.annotations.Component;
+import org.apache.maven.plugins.annotations.Parameter;
 import org.apache.maven.project.MavenProject;
 import org.twdata.maven.mojoexecutor.MojoExecutor;
 
@@ -33,10 +35,10 @@ import org.twdata.maven.mojoexecutor.MojoExecutor;
  */
 public abstract class AbstractPackagerMojo extends AbstractMojo {
 
-	@Component
+	@Parameter( defaultValue = "${project}", readonly = true )
 	MavenProject mavenProject;
 
-	@Component
+	@Parameter( defaultValue = "${session}", readonly = true )
 	MavenSession mavenSession;
 
 	@Component
@@ -75,6 +77,32 @@ public abstract class AbstractPackagerMojo extends AbstractMojo {
 	 */
 	protected ObjectMapper getYamlMapper() {
 		return new ObjectMapper(new YAMLFactory());
+	}
+
+	/**
+	 * Convenience method to read a File resource to String
+	 */
+	protected String getResourceAsString(String resource) throws MojoExecutionException {
+		InputStream is = null;
+		try {
+			is = getClass().getClassLoader().getResourceAsStream(resource);
+			return IOUtils.toString(is, "UTF-8");
+		}
+		catch (Exception e) {
+			throw new MojoExecutionException("Error reading " + resource, e);
+		}
+		finally {
+			IOUtils.closeQuietly(is);
+		}
+	}
+
+	protected void writeStringToFile(File file, String s) throws MojoExecutionException {
+		try {
+			FileUtils.writeStringToFile(file, s, "UTF-8");
+		}
+		catch (Exception e) {
+			throw new MojoExecutionException("An error occurred writing to file: " + file);
+		}
 	}
 
 	/**

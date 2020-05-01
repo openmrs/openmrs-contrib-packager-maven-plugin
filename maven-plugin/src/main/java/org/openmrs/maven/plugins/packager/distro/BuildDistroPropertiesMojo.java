@@ -55,7 +55,7 @@ public class BuildDistroPropertiesMojo extends AbstractPackagerDistroMojo {
 		props.put("version", mp.getVersion());
 		props.put("war.openmrs", getArtifact("openmrs-webapp", "war").getVersion());
 
-		// For every depedency declared that is of type jar or omod, add it if it is determined to be a module artifact
+		// For every dependency declared that is of type jar or omod, add it if it is determined to be a module artifact
 		Map<String, String> sortedModules = new TreeMap<>();
 		for (Artifact a : mp.getDependencyArtifacts()) {
 			if (isModule(a)) {

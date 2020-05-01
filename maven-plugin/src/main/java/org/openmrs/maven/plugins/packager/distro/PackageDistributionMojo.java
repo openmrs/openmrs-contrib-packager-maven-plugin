@@ -20,13 +20,20 @@ import java.io.File;
 import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.plugins.annotations.LifecyclePhase;
 import org.apache.maven.plugins.annotations.Mojo;
-import org.openmrs.maven.plugins.packager.config.AbstractPackagerConfigMojo;
+import org.apache.maven.plugins.annotations.Parameter;
 
 /**
  * The purpose of this Mojo is to package up an OpenMRS distribution into a Zip artifact
  */
 @Mojo(name = "package-distribution", defaultPhase = LifecyclePhase.PACKAGE)
-public class PackageDistributionMojo extends AbstractPackagerConfigMojo {
+public class PackageDistributionMojo extends AbstractPackagerDistroMojo {
+
+	@Parameter(property = "artifactDir",
+			   defaultValue = "${project.build.directory}/openmrs-packager-distro/package-distribution/artifacts")
+	File artifactDir;
+
+	@Parameter(property = "classifier", defaultValue = "distribution")
+	String classifier;
 
 	/**
 	 * @throws MojoExecutionException if an error occurs
@@ -44,13 +51,16 @@ public class PackageDistributionMojo extends AbstractPackagerConfigMojo {
 		// Write descriptor xml
 		String assemblyFileName = "packager-distro-assembly.xml";
 		File assemblyFile = new File(getPluginBuildDir(), assemblyFileName);
-		copyResourceToFile(assemblyFileName, assemblyFile);
+		String assemblyFileContents = getResourceAsString(assemblyFileName);
+		assemblyFileContents = assemblyFileContents.replace("${artifactDir}", artifactDir.getAbsolutePath());
+		assemblyFileContents = assemblyFileContents.replace("${classifier}", classifier);
+		writeStringToFile(assemblyFile, assemblyFileContents);
 
 		executeMojo(
 				plugin("org.apache.maven.plugins", "maven-assembly-plugin", "3.1.0"),
 				goal("single"),
 				configuration(
-						element("appendAssemblyId", "false"),
+						element("appendAssemblyId", "true"),
 						element("descriptors",
 								element("descriptor", assemblyFile.getAbsolutePath())
 						)
@@ -60,7 +70,7 @@ public class PackageDistributionMojo extends AbstractPackagerConfigMojo {
 	}
 
 	/**
-	 * @return the directory into which the work for this plugin is performed
+	 * @return the directory into which this plugin performs operations by default
 	 */
 	@Override
 	public File getPluginBuildDir() {

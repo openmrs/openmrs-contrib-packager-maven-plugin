@@ -6,7 +6,7 @@
     http://maven.apache.org/plugins/maven-assembly-plugin/assembly/1.1.2
       http://maven.apache.org/xsd/assembly-1.1.2.xsd"
 >
-    <id>package-distro</id>
+    <id>${classifier}</id>
     <formats>
         <format>zip</format>
     </formats>
@@ -14,7 +14,7 @@
     <fileSets>
         <fileSet>
             <outputDirectory></outputDirectory>
-            <directory>${project.build.directory}/openmrs-packager-distro</directory>
+            <directory>${artifactDir}</directory>
         </fileSet>
     </fileSets>
 </assembly>
