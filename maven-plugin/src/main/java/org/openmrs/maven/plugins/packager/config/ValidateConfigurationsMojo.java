@@ -9,12 +9,16 @@
  */
 package org.openmrs.maven.plugins.packager.config;
 
+import static org.apache.commons.lang.StringUtils.isEmpty;
+import static org.openmrs.module.initializer.validator.Validator.ARG_CIEL_FILE;
 import static org.openmrs.module.initializer.validator.Validator.ARG_CONFIG_DIR;
+import static org.openmrs.module.initializer.validator.Validator.ARG_UNSAFE;
 
 import java.io.File;
 import java.net.URISyntaxException;
-import java.util.Arrays;
+import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Stream;
 
 import javax.persistence.Cache;
 import javax.persistence.EntityGraph;
@@ -40,14 +44,24 @@ import org.springframework.orm.jpa.JpaSystemException;
 /**
  * The purpose of this Mojo is to validate configurations.
  */
-@Mojo( name = "validate-configuration" )
-public class ValidateConfigurationMojo extends AbstractPackagerConfigMojo {
+@Mojo( name = "validate-configurations" )
+public class ValidateConfigurationsMojo extends AbstractPackagerConfigMojo {
 	
 	// Configuration Directory
 	@Parameter(property = "sourceDir", defaultValue = "configuration")
 	private File sourceDir;
 	
-	private void findClasses() {
+	@Parameter(property = "cielFile")
+	private File cielFile;
+	
+	// Extra Validator CLI options
+	@Parameter(property = "extraValidatorArgs")
+	private String extraValidatorArgs;
+	
+	/*
+	 * To avoid NoClassDefFoundError on EntityManagerFactoryUtils and related classes.
+	 */
+	private void findClassDefinitions() {
 		EntityManagerFactoryUtils.class.toString();
 		PersistenceException.class.toString();
 		TransactionRequiredException.class.toString();
@@ -64,31 +78,67 @@ public class ValidateConfigurationMojo extends AbstractPackagerConfigMojo {
 	}
 	
 	/**
-	 * @throws MojoExecutionException if an error occurs
+	 * @throws MojoExecutionException if the Maven build should be errored.
 	 */
 	public void execute() throws MojoExecutionException {
 		
-		findClasses();
+		findClassDefinitions(); // TODO: figure out why this is needed
 		
+		List<String> args = new ArrayList<>();
 		if (sourceDir == null || !sourceDir.isDirectory()) {
 			throw new MojoExecutionException(sourceDir.getAbsolutePath() + " does not point to a valid directory.");
 		}
+		args.add("--" + ARG_CONFIG_DIR + "=" + sourceDir.getAbsolutePath());
 		
-		List<String> args = Arrays.asList("--" + ARG_CONFIG_DIR + "=" + sourceDir.getAbsolutePath());
+		if (cielFile != null) {
+			args.add("--" + ARG_CIEL_FILE + "=" + cielFile.getAbsolutePath());
+		}
+		
+		if (!isEmpty(extraValidatorArgs)) {
+			addValidatorCliArguments(extraValidatorArgs, args);
+		}
 		
 		Result result = new Result();
 		try {
+			args.add("--" + ARG_UNSAFE);
 			result = Validator.getJUnitResult(args.toArray(new String[0]));
 		}
 		catch (URISyntaxException | ParseException e) {
-			getLog().error(e.getMessage(), e);
-		}
-		finally {
-			if (!result.wasSuccessful()) {
-				throw new MojoExecutionException("The configuration could not be validated, scroll up the Maven build logs for error details.");
-			}
+			throw new MojoExecutionException(e.getMessage(), e);
 		}
 		
+		if (!result.wasSuccessful()) {
+			throw new MojoExecutionException("The configuration could not be validated, scroll up the Maven build logs for details.");
+		}
+		
+	}
+	
+	/**
+	 * Parses a one liner string of Validators arguments into a list of arguments supported by the plugin. 
+	 * 
+	 * @param opts The string Validators args/options, eg. "--domains='concepts,locations' --exclude.concepts='*diags*,*interventions*'"
+	 * @param args (ouput) The list of Validator args.
+	 */
+	protected void addValidatorCliArguments(String opts, List<String> args) {
+		Stream.of(opts.split("--")).map(o -> o.trim()).filter(o -> !isEmpty(o)).filter(o -> includeOption(o)).forEach(o -> {
+			args.add("--" + o);
+		});
+	}
+	
+	protected boolean includeOption(String opt) {
+		if (opt.startsWith(ARG_CONFIG_DIR)) {
+			getLog().warn("--" + ARG_CONFIG_DIR + " cannot be provided as an extra Validator argument, use <sourceDir/> instead in the plugin configuration.");
+			return false;
+		}
+		if (opt.startsWith(ARG_CIEL_FILE)) {
+			getLog().warn("--" + ARG_CIEL_FILE + " cannot be provided as an extra Validator argument, use <cielFile/> instead in the plugin configuration.");
+			return false;
+		}
+		if (opt.startsWith(ARG_UNSAFE)) {
+			getLog().info("--" + ARG_UNSAFE + " is redundant since the plugin always validates configurations in unsafe mode.");
+			return false;
+		}
+		return true;
 	}
 	
 }
