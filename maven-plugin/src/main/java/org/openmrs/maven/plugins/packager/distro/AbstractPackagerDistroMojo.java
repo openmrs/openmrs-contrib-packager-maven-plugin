@@ -11,12 +11,16 @@ package org.openmrs.maven.plugins.packager.distro;
 
 import java.io.File;
 
+import org.apache.maven.plugins.annotations.Parameter;
 import org.openmrs.maven.plugins.packager.AbstractPackagerMojo;
 
 /**
  * Superclass for Mojo within the distro package
  */
 public abstract class AbstractPackagerDistroMojo extends AbstractPackagerMojo {
+
+	@Parameter(property = "artifactDir", defaultValue = "${project.build.directory}/openmrs-packager-distro/package-distribution/artifacts")
+	File artifactDir;
 
 	/**
 	 * Convenience method to get the project build directory

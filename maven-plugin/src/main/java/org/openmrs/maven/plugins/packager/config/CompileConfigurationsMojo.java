@@ -9,6 +9,16 @@
  */
 package org.openmrs.maven.plugins.packager.config;
 
+import static org.twdata.maven.mojoexecutor.MojoExecutor.configuration;
+import static org.twdata.maven.mojoexecutor.MojoExecutor.element;
+import static org.twdata.maven.mojoexecutor.MojoExecutor.executeMojo;
+import static org.twdata.maven.mojoexecutor.MojoExecutor.goal;
+
+import java.io.File;
+import java.nio.file.Files;
+import java.util.List;
+import java.util.Properties;
+
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.apache.commons.io.FileUtils;
@@ -17,17 +27,7 @@ import org.apache.maven.plugin.MojoFailureException;
 import org.apache.maven.plugins.annotations.LifecyclePhase;
 import org.apache.maven.plugins.annotations.Mojo;
 import org.apache.maven.plugins.annotations.Parameter;
-
-import java.io.File;
-import java.nio.file.Files;
-import java.util.List;
-import java.util.Properties;
-
-import static org.twdata.maven.mojoexecutor.MojoExecutor.configuration;
-import static org.twdata.maven.mojoexecutor.MojoExecutor.element;
-import static org.twdata.maven.mojoexecutor.MojoExecutor.executeMojo;
-import static org.twdata.maven.mojoexecutor.MojoExecutor.goal;
-import static org.twdata.maven.mojoexecutor.MojoExecutor.plugin;
+import org.openmrs.maven.plugins.packager.Plugins;
 
 /**
  * The purpose of this Mojo is to pull in dependent artifacts that contain
@@ -108,7 +108,7 @@ public class CompileConfigurationsMojo extends AbstractPackagerConfigMojo {
 
 		getLog().info("Unpacking dependency to " + unpackDir);
 		executeMojo(
-				plugin("org.apache.maven.plugins", "maven-dependency-plugin", "3.1.1"),
+				Plugins.MAVEN_DEPENDENCY_PLUGIN,
 				goal("unpack"),
 				configuration(
 						element("artifactItems",
@@ -134,7 +134,7 @@ public class CompileConfigurationsMojo extends AbstractPackagerConfigMojo {
 	protected void copyAndFilterConfiguration(File fromDir, File toDir) throws MojoExecutionException {
 		getLog().info("Adding and filtering resources from " + fromDir + " to " + toDir);
 		executeMojo(
-				plugin("org.apache.maven.plugins", "maven-resources-plugin", "3.1.0"),
+				Plugins.MAVEN_RESOURCES_PLUGIN,
 				goal("copy-resources"),
 				configuration(
 						element("outputDirectory", toDir.getAbsolutePath()),

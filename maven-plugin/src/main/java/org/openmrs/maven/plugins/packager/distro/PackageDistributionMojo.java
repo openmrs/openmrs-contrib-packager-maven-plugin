@@ -13,7 +13,6 @@ import static org.twdata.maven.mojoexecutor.MojoExecutor.configuration;
 import static org.twdata.maven.mojoexecutor.MojoExecutor.element;
 import static org.twdata.maven.mojoexecutor.MojoExecutor.executeMojo;
 import static org.twdata.maven.mojoexecutor.MojoExecutor.goal;
-import static org.twdata.maven.mojoexecutor.MojoExecutor.plugin;
 
 import java.io.File;
 
@@ -21,16 +20,13 @@ import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.plugins.annotations.LifecyclePhase;
 import org.apache.maven.plugins.annotations.Mojo;
 import org.apache.maven.plugins.annotations.Parameter;
+import org.openmrs.maven.plugins.packager.Plugins;
 
 /**
  * The purpose of this Mojo is to package up an OpenMRS distribution into a Zip artifact
  */
 @Mojo(name = "package-distribution", defaultPhase = LifecyclePhase.PACKAGE)
 public class PackageDistributionMojo extends AbstractPackagerDistroMojo {
-
-	@Parameter(property = "artifactDir",
-			   defaultValue = "${project.build.directory}/openmrs-packager-distro/package-distribution/artifacts")
-	File artifactDir;
 
 	@Parameter(property = "classifier", defaultValue = "distribution")
 	String classifier;
@@ -57,7 +53,7 @@ public class PackageDistributionMojo extends AbstractPackagerDistroMojo {
 		writeStringToFile(assemblyFile, assemblyFileContents);
 
 		executeMojo(
-				plugin("org.apache.maven.plugins", "maven-assembly-plugin", "3.1.0"),
+				Plugins.MAVEN_ASSEMBLY_PLUGIN,
 				goal("single"),
 				configuration(
 						element("appendAssemblyId", "true"),

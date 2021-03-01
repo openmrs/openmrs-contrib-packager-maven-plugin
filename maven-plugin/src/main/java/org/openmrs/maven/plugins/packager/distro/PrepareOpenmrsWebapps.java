@@ -7,7 +7,7 @@
  * Copyright (C) OpenMRS Inc. OpenMRS is a registered trademark and the OpenMRS
  * graphic logo is a trademark of OpenMRS Inc.
  */
-package org.openmrs.maven.plugins.packager.config;
+package org.openmrs.maven.plugins.packager.distro;
 
 import static org.twdata.maven.mojoexecutor.MojoExecutor.configuration;
 import static org.twdata.maven.mojoexecutor.MojoExecutor.element;
@@ -19,40 +19,37 @@ import java.io.File;
 import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.plugins.annotations.LifecyclePhase;
 import org.apache.maven.plugins.annotations.Mojo;
+import org.apache.maven.plugins.annotations.Parameter;
 import org.openmrs.maven.plugins.packager.Plugins;
 
 /**
- * The purpose of this Mojo is to package up the compiled configurations into a Zip artifact
+ * The purpose of this Mojo is to package up an OpenMRS distribution into a Zip artifact
  */
-@Mojo(name = "package-configurations", defaultPhase = LifecyclePhase.PACKAGE)
-public class PackageConfigurationsMojo extends AbstractPackagerConfigMojo {
+@Mojo(name = "assemble-openmrs-webapps", defaultPhase = LifecyclePhase.PREPARE_PACKAGE)
+public class PrepareOpenmrsWebapps extends AbstractPackagerDistroMojo {
+
+	@Parameter(defaultValue = "openmrs_webapps")
+	String openmrsWebappsDir;
 
 	/**
 	 * @throws MojoExecutionException if an error occurs
 	 */
 	public void execute() throws MojoExecutionException {
-		createArchive();
-	}
+		getLog().info("Preparing OpenMRS Webapps");
 
-	/**
-	 * Executes the Maven assembly plugin in order to create a packaged zip artifact
-	 */
-	protected void createArchive() throws MojoExecutionException {
-		getLog().info("Creating archive");
-
-		// Write descriptor xml
-		String assemblyFileName = "packager-config-assembly.xml";
-		File assemblyFile = new File(getPluginBuildDir(), assemblyFileName);
-		copyResourceToFile(assemblyFileName, assemblyFile);
+		File targetDir = new File(artifactDir, openmrsWebappsDir);
+		if (!targetDir.exists()) {
+			targetDir.mkdirs();
+		}
 
 		executeMojo(
-				Plugins.MAVEN_ASSEMBLY_PLUGIN,
-				goal("single"),
+				Plugins.MAVEN_DEPENDENCY_PLUGIN,
+				goal("copy-dependencies"),
 				configuration(
-						element("appendAssemblyId", "false"),
-						element("descriptors",
-								element("descriptor", assemblyFile.getAbsolutePath())
-						)
+						element("excludeTransitive", "true"),
+						element("useBaseVersion", "true"),
+						element("outputDirectory", targetDir.getAbsolutePath()),
+						element("includeArtifactIds", "openmrs-webapp")
 				),
 				getMavenExecutionEnvironment()
 		);

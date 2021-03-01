@@ -13,7 +13,6 @@ import static org.twdata.maven.mojoexecutor.MojoExecutor.configuration;
 import static org.twdata.maven.mojoexecutor.MojoExecutor.element;
 import static org.twdata.maven.mojoexecutor.MojoExecutor.executeMojo;
 import static org.twdata.maven.mojoexecutor.MojoExecutor.goal;
-import static org.twdata.maven.mojoexecutor.MojoExecutor.plugin;
 
 import java.io.File;
 import java.util.ArrayList;
@@ -33,6 +32,7 @@ import org.apache.maven.plugins.annotations.LifecyclePhase;
 import org.apache.maven.plugins.annotations.Mojo;
 import org.apache.maven.plugins.annotations.Parameter;
 import org.apache.maven.project.MavenProject;
+import org.openmrs.maven.plugins.packager.Plugins;
 
 /**
  * The purpose of this Mojo is to create an openmrs-distro.properties file
@@ -92,7 +92,7 @@ public class BuildDistroPropertiesMojo extends AbstractPackagerDistroMojo {
 		}
 
 		executeMojo(
-				plugin("org.apache.maven.plugins", "maven-resources-plugin", "3.1.0"),
+				Plugins.MAVEN_RESOURCES_PLUGIN,
 				goal("copy-resources"),
 				configuration(
 						element("outputDirectory", getTargetDir().getAbsolutePath()),
