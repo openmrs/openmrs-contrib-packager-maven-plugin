@@ -15,7 +15,6 @@ import static org.openmrs.module.initializer.validator.Validator.ARG_CONFIG_DIR;
 import static org.openmrs.module.initializer.validator.Validator.ARG_UNSAFE;
 
 import java.io.File;
-import java.net.URISyntaxException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Stream;
@@ -29,7 +28,6 @@ import javax.persistence.TransactionRequiredException;
 import javax.persistence.criteria.CriteriaBuilder;
 import javax.persistence.metamodel.Metamodel;
 
-import org.apache.commons.cli.ParseException;
 import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.plugins.annotations.Mojo;
 import org.apache.maven.plugins.annotations.Parameter;
@@ -58,6 +56,10 @@ public class ValidateConfigurationsMojo extends AbstractPackagerConfigMojo {
 	@Parameter(property = "extraValidatorArgs")
 	private String extraValidatorArgs;
 	
+	protected File getSourceDir() {
+		return sourceDir;
+	}
+	
 	/*
 	 * To avoid NoClassDefFoundError on EntityManagerFactoryUtils and related classes.
 	 */
@@ -85,10 +87,10 @@ public class ValidateConfigurationsMojo extends AbstractPackagerConfigMojo {
 		findClassDefinitions(); // TODO: figure out why this is needed
 		
 		List<String> args = new ArrayList<>();
-		if (sourceDir == null || !sourceDir.isDirectory()) {
-			throw new MojoExecutionException(sourceDir.getAbsolutePath() + " does not point to a valid directory.");
+		if (getSourceDir() == null || !getSourceDir().isDirectory()) {
+			throw new MojoExecutionException(getSourceDir().getAbsolutePath() + " does not point to a valid directory.");
 		}
-		args.add("--" + ARG_CONFIG_DIR + "=" + sourceDir.getAbsolutePath());
+		args.add("--" + ARG_CONFIG_DIR + "=" + getSourceDir().getAbsolutePath());
 		
 		if (cielFile != null) {
 			args.add("--" + ARG_CIEL_FILE + "=" + cielFile.getAbsolutePath());
@@ -103,7 +105,7 @@ public class ValidateConfigurationsMojo extends AbstractPackagerConfigMojo {
 			args.add("--" + ARG_UNSAFE);
 			result = Validator.getJUnitResult(args.toArray(new String[0]));
 		}
-		catch (URISyntaxException | ParseException e) {
+		catch (Exception e) {
 			throw new MojoExecutionException(e.getMessage(), e);
 		}
 		
