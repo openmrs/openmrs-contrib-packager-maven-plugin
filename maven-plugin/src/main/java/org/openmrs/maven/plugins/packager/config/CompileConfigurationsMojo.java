@@ -101,32 +101,6 @@ public class CompileConfigurationsMojo extends AbstractPackagerConfigMojo {
 	}
 
 	/**
-	 * Executes the maven dependency plugin, unpacking dependent artifacts into a standard directory structure
-	 * in the build directory so that these can be pulled in as a appropriate to the final configurations
-	 */
-	public void unpackDependency(ConfigDependency d, File unpackDir) throws MojoExecutionException {
-
-		getLog().info("Unpacking dependency to " + unpackDir);
-		executeMojo(
-				plugin("org.apache.maven.plugins", "maven-dependency-plugin", "3.1.1"),
-				goal("unpack"),
-				configuration(
-						element("artifactItems",
-								element("artifactItem",
-										element("groupId", d.getGroupId()),
-										element("artifactId", d.getArtifactId()),
-										element("version", d.getVersion()),
-										element("type", "zip"),
-										element("overWrite", "true"),
-										element("outputDirectory", unpackDir.getAbsolutePath())
-								)
-						)
-				),
-				getMavenExecutionEnvironment()
-		);
-	}
-
-	/**
 	 * Executes the maven resources plugin, copying configuration resources
 	 * from one directory to another, and ensuring the resource filtering is enabled
 	 * so that variable replacements can take place.

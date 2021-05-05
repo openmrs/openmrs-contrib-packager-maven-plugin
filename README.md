@@ -213,6 +213,46 @@ versions of the parent configuration artifact is installed.
 The result of the above is that you can have a hierarchy of configurations that depend upon one another and all
 of which automatically build and deploy to an openmrs server during development.
 
+#### Generating classes and artifacts with constants for use in downstream Java projects
+
+This plugin contains an additional goal, the purpose of which is to consume a configuration artifact that
+was built and deployed by the other goals, and to use this artifact to generate a Java file containing constants
+for each of the constants defined in in the configuration project.
+
+To accomplish this, you can add add additional maven submodule to your configuration project, with a pom.xml file that
+contains the following build specification:
+
+```xml
+    <build>
+        <plugins>
+            <plugin>
+                <groupId>org.openmrs.maven.plugins</groupId>
+                <artifactId>openmrs-packager-maven-plugin</artifactId>
+                <version>1.5.0-SNAPSHOT</version>
+                <executions>
+                    <execution>
+                        <id>generate-constants-class</id>
+                        <phase>generate-sources</phase>
+                        <goals>
+                            <goal>generate-constants-class</goal>
+                        </goals>
+                        <configuration>
+                            <groupId>${project.parent.groupId}</groupId>
+                            <artifactId>${project.parent.artifactId}</artifactId>
+                            <version>${project.parent.version}</version>
+                            <packageName>org.myproject</packageName>
+                            <className>MyConstants</className>
+                        </configuration>
+                    </execution>
+                </executions>
+            </plugin>
+        </plugins>
+    </build>
+```
+
+You should change the packageName and className above to match the package and class you want the generated
+file to utilize.
+
 #### TODO
 
 * Add more sophistication to dependencies

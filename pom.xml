@@ -144,12 +144,12 @@
         <repository>
             <id>openmrs-repo-releases</id>
             <name>OpenMRS Releases Repo</name>
-            <url>http://mavenrepo.openmrs.org/nexus/content/repositories/releases</url>
+            <url>https://mavenrepo.openmrs.org/nexus/content/repositories/releases</url>
         </repository>
         <snapshotRepository>
             <id>openmrs-repo-snapshots</id>
             <name>OpenMRS Snapshots Repo</name>
-            <url>http://mavenrepo.openmrs.org/nexus/content/repositories/snapshots</url>
+            <url>https://mavenrepo.openmrs.org/nexus/content/repositories/snapshots</url>
         </snapshotRepository>
     </distributionManagement>
 </project>
