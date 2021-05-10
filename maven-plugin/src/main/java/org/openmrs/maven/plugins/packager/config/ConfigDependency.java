@@ -23,6 +23,12 @@ public class ConfigDependency implements Serializable {
 
 	public ConfigDependency() {}
 
+	public ConfigDependency(String groupId, String artifactId, String version) {
+		this.groupId = groupId;
+		this.artifactId = artifactId;
+		this.version = version;
+	}
+
 	@Override
 	public String toString() {
 		return toString(":");

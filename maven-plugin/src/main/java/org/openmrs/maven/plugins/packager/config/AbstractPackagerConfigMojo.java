@@ -9,7 +9,12 @@
  */
 package org.openmrs.maven.plugins.packager.config;
 
+import static org.twdata.maven.mojoexecutor.MojoExecutor.configuration;
+import static org.twdata.maven.mojoexecutor.MojoExecutor.element;
+import static org.twdata.maven.mojoexecutor.MojoExecutor.executeMojo;
 import static org.twdata.maven.mojoexecutor.MojoExecutor.executionEnvironment;
+import static org.twdata.maven.mojoexecutor.MojoExecutor.goal;
+import static org.twdata.maven.mojoexecutor.MojoExecutor.plugin;
 
 import java.io.File;
 import java.io.FileInputStream;
@@ -110,8 +115,8 @@ public abstract class AbstractPackagerConfigMojo extends AbstractMojo {
 	 */
 	public Properties loadPropertiesFromFile(File file) throws MojoExecutionException {
 		Properties p = new ConstantProperties();
-		if (getCompiledConstantsFile().exists()) {
-			try (FileInputStream in = new FileInputStream(getCompiledConstantsFile())) {
+		if (file.exists()) {
+			try (FileInputStream in = new FileInputStream(file)) {
 				p.load(in);
 			}
 			catch (Exception e) {
@@ -131,6 +136,32 @@ public abstract class AbstractPackagerConfigMojo extends AbstractMojo {
 		catch (Exception e) {
 			throw new MojoExecutionException("Unable to write properties to file: " + file, e);
 		}
+	}
+
+	/**
+	 * Executes the maven dependency plugin, unpacking dependent artifacts into a standard directory structure
+	 * in the build directory so that these can be pulled in as a appropriate to the final configurations
+	 */
+	public void unpackDependency(ConfigDependency d, File unpackDir) throws MojoExecutionException {
+
+		getLog().info("Unpacking dependency to " + unpackDir);
+		executeMojo(
+				plugin("org.apache.maven.plugins", "maven-dependency-plugin", "3.1.1"),
+				goal("unpack"),
+				configuration(
+						element("artifactItems",
+								element("artifactItem",
+										element("groupId", d.getGroupId()),
+										element("artifactId", d.getArtifactId()),
+										element("version", d.getVersion()),
+										element("type", "zip"),
+										element("overWrite", "true"),
+										element("outputDirectory", unpackDir.getAbsolutePath())
+								)
+						)
+				),
+				getMavenExecutionEnvironment()
+		);
 	}
 
 	/**
