@@ -120,11 +120,12 @@ public class CompileConfigurationsMojo extends AbstractPackagerConfigMojo {
 										element("filtering", "true")
 								)
 						),
-                        element("nonFilteredFileExtensions",
-                                element("nonFilteredFileExtension", "zip"),
-                                element("nonFilteredFileExtension", "xls"),
-                                element("nonFilteredFileExtension", "xlsx")
-                        )
+						element("nonFilteredFileExtensions",
+								element("nonFilteredFileExtension", "zip"),
+								element("nonFilteredFileExtension", "xls"),
+								element("nonFilteredFileExtension", "xlsx"),
+								element("nonFilteredFileExtension", "pdf")
+						)
 				),
 				getMavenExecutionEnvironment()
 		);
