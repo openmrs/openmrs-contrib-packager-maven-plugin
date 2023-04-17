@@ -100,7 +100,7 @@ public class ValidateConfigurationsMojo extends AbstractPackagerConfigMojo {
 			addValidatorCliArguments(extraValidatorArgs, args);
 		}
 		
-		Result result = new Result();
+		Result result;
 		try {
 			args.add("--" + ARG_UNSAFE);
 			result = Validator.getJUnitResult(args.toArray(new String[0]));
