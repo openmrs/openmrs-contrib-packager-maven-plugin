@@ -13,6 +13,7 @@ import static org.apache.commons.lang.StringUtils.isEmpty;
 import static org.openmrs.module.initializer.validator.Validator.ARG_CIEL_FILE;
 import static org.openmrs.module.initializer.validator.Validator.ARG_CONFIG_DIR;
 import static org.openmrs.module.initializer.validator.Validator.ARG_UNSAFE;
+import static org.openmrs.module.initializer.validator.Validator.ARG_LOG_DIR;
 
 import java.io.File;
 import java.util.ArrayList;
@@ -92,12 +93,18 @@ public class ValidateConfigurationsMojo extends AbstractPackagerConfigMojo {
 		}
 		args.add("--" + ARG_CONFIG_DIR + "=" + getSourceDir().getAbsolutePath());
 		
+		// The build directory to be the default log directory.
+		if (extraValidatorArgs == null || !extraValidatorArgs.contains(ARG_LOG_DIR)) {
+			args.add("--" + ARG_LOG_DIR + "=" + getBuildDir().getAbsolutePath());
+		}
+		
 		if (cielFile != null) {
 			args.add("--" + ARG_CIEL_FILE + "=" + cielFile.getAbsolutePath());
 		}
 		
 		if (!isEmpty(extraValidatorArgs)) {
 			addValidatorCliArguments(extraValidatorArgs, args);
+			
 		}
 		
 		Result result;
