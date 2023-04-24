@@ -72,6 +72,13 @@ The top-level POM serves two purposes:
               <goal>package-configurations</goal>
             </goals>
           </execution>
+          <execution>
+            <id>validate-configurations</id>
+            <phase>validate</phase>
+            <goals>
+              <goal>validate-configurations</goal>
+            </goals>
+          </execution>
         </executions>
       </plugin>
     </plugins>
