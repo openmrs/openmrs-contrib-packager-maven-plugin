@@ -4,7 +4,7 @@
 
     <groupId>org.openmrs.maven.plugins</groupId>
     <artifactId>openmrs-packager-maven-plugin-parent</artifactId>
-    <version>1.8.0-SNAPSHOT</version>
+    <version>1.7.0-SNAPSHOT</version>
     <packaging>pom</packaging>
 
     <name>OpenMRS Packager Maven Plugin Parent Project</name>
@@ -196,4 +196,18 @@
             </snapshots>
         </repository>
     </repositories>
+
+    <distributionManagement>
+        <repository>
+            <id>openmrs-repo-releases</id>
+            <name>OpenMRS Releases Repo</name>
+            <url>https://mavenrepo.openmrs.org/nexus/content/repositories/releases</url>
+        </repository>
+        <snapshotRepository>
+            <id>openmrs-repo-snapshots</id>
+            <name>OpenMRS Snapshots Repo</name>
+            <url>https://mavenrepo.openmrs.org/nexus/content/repositories/snapshots</url>
+        </snapshotRepository>
+    </distributionManagement>
+
 </project>
