@@ -14,7 +14,7 @@
             <plugin>
                 <groupId>org.openmrs.maven.plugins</groupId>
                 <artifactId>openmrs-packager-maven-plugin</artifactId>
-                <version>1.7.0</version>
+                <version>1.7.0-SNAPSHOT</version>
                 <executions>
                     <execution>
                         <id>generate-resource-filters</id>
@@ -44,10 +44,24 @@
 
     <pluginRepositories>
         <pluginRepository>
-            <id>openmrs-repo-releases</id>
-            <name>OpenMRS Releases Repo</name>
-            <url>https://openmrs.jfrog.io/artifactory/releases</url>
+            <id>openmrs-repo</id>
+            <name>OpenMRS Nexus Repository</name>
+            <url>https://mavenrepo.openmrs.org/nexus/content/repositories/public</url>
+            <snapshots>
+                <enabled>false</enabled>
+            </snapshots>
         </pluginRepository>
+        <repository>
+            <id>openmrs-snapshots</id>
+            <name>OpenMRS Public Repository</name>
+            <url>https://mavenrepo.openmrs.org/snapshots</url>
+            <snapshots>
+                <enabled>true</enabled>
+            </snapshots>
+            <releases>
+                <enabled>false</enabled>
+            </releases>
+        </repository>
     </pluginRepositories>
 
 </project>
