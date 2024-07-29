@@ -15,10 +15,10 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 
-public class ValidateAssembleContentPackageMojoTest {
+public class ValidateContentPackageMojoTest {
 	
 	@InjectMocks
-	private ValidateAssembleContentPackageMojo mojo = new ValidateAssembleContentPackageMojo();
+	private ValidateContentPackageMojo mojo = new ValidateContentPackageMojo();
 	
 	@Mock
 	private FileInputStream mockFileInputStream;
@@ -35,11 +35,10 @@ public class ValidateAssembleContentPackageMojoTest {
 	}
 	
 	@Test
-	public void execute_validContentPropertiesFile() throws Exception {
+	public void executeValidContentPropertiesFileWithoutErrors() throws Exception {
 		// setup
 		String validPropertiesFile = "src/test/resources/config-test-child/valid-content.properties";
 		mojo.sourceFile = validPropertiesFile;
-		
 		// replay
 		mojo.execute();
 		
@@ -48,7 +47,7 @@ public class ValidateAssembleContentPackageMojoTest {
 	}
 	
 	@Test
-	public void execute_invalidContentPropertiesFormat() throws Exception {
+	public void executeInvalidContentPropertiesFormatWithException() throws Exception {
 		// setup
 		String invalidPropertiesFile = "src/test/resources/config-test-child/invalid-content.properties";
 		mojo.sourceFile = invalidPropertiesFile;
@@ -58,6 +57,7 @@ public class ValidateAssembleContentPackageMojoTest {
 		
 		// replay
 		mojo.execute();
+		
 	}
 	
 	@Test
@@ -86,6 +86,7 @@ public class ValidateAssembleContentPackageMojoTest {
 		assertFalse(mojo.isValidVersion("1..0"));
 		assertFalse(mojo.isValidVersion("1.0.0.0"));
 		assertFalse(mojo.isValidVersion("latest"));
+		assertFalse(mojo.isValidVersion("next"));
 	}
 	
 	@Test

@@ -23,10 +23,10 @@ import org.apache.maven.plugins.annotations.Parameter;
 /**
  * The purpose of this Mojo is to validate and assemble content properties file.
  */
-@Mojo(name = "validate-assemble-content-package")
-public class ValidateAssembleContentPackageMojo extends AbstractMojo {
+@Mojo(name = "validate-content-package")
+public class ValidateContentPackageMojo extends AbstractMojo {
 	
-	// Configuration Directory
+	// conf properties file
 	@Parameter(property = "sourceFile")
 	protected String sourceFile;
 	
@@ -40,12 +40,7 @@ public class ValidateAssembleContentPackageMojo extends AbstractMojo {
 	 * @throws MojoExecutionException if an error occurs during validation
 	 */
 	public void execute() throws MojoExecutionException {
-		try {
-			validateProperties();
-		}
-		catch (Exception e) {
-			throw new MojoExecutionException("Error validating properties file", e);
-		}
+		validateProperties();
 	}
 	
 	/**
@@ -54,7 +49,7 @@ public class ValidateAssembleContentPackageMojo extends AbstractMojo {
 	 * @throws IOException if an error occurs while reading the file
 	 */
 	protected void validateProperties() throws MojoExecutionException {
-		try (InputStream input = new FileInputStream(sourceFile)) {
+		try (InputStream inputStream = new FileInputStream(sourceFile)) {
 			Properties properties = new Properties();
 			properties.load(input);
 			
@@ -63,8 +58,10 @@ public class ValidateAssembleContentPackageMojo extends AbstractMojo {
 					continue;
 				}
 				String value = properties.getProperty(key);
-				if (!isValidVersion(value)) {
-					throw new MojoExecutionException("Invalid version format for key: " + key + ", value: " + value);
+				
+				if (isValidVersion(value.trim())) {
+					throw new MojoExecutionException(
+					        "Invalid version format for key: " + key + ", value: " + value + ", expected semver range");
 				}
 			}
 		}
@@ -74,27 +71,12 @@ public class ValidateAssembleContentPackageMojo extends AbstractMojo {
 	}
 	
 	/**
-	 * Cleans the value by trimming whitespace.
-	 *
-	 * @param value the value to clean
-	 * @return the cleaned value
-	 */
-	private String cleanValue(String value) {
-		return value.trim();
-	}
-	
-	/**
 	 * Checks if the given value is a valid version format.
 	 *
 	 * @param value the value to check
 	 * @return true if the value is a valid version format, false otherwise
 	 */
 	protected boolean isValidVersion(String value) {
-		value = cleanValue(value);
-		// Exclude "latest" explicitly
-		if ("latest".equalsIgnoreCase(value)) {
-			return false;
-		}
 		return VERSION_PATTERN.matcher(value).matches();
 	}
 	
