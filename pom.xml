@@ -87,6 +87,11 @@
             <artifactId>maven-verifier</artifactId>
             <version>1.6</version>
         </dependency>
+	<dependency>
+    	    <groupId>com.vdurmont</groupId>
+            <artifactId>semver4j</artifactId>
+            <version>3.1.0</version>
+	</dependency>
 
         <!-- Commons utilities -->
         <dependency>

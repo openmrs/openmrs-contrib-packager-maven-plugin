@@ -13,26 +13,27 @@ import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.Properties;
-import java.util.regex.Pattern;
 
 import org.apache.maven.plugin.AbstractMojo;
 import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.plugins.annotations.Mojo;
 import org.apache.maven.plugins.annotations.Parameter;
 
+import com.vdurmont.semver4j.Semver;
+import com.vdurmont.semver4j.SemverException;
+
 /**
- * The purpose of this Mojo is to validate and assemble content properties file.
+ * The purpose of this Mojo is to validate content properties file - validates the properties are
+ * only in ranges. values like latest and next are not allowed.
  */
 @Mojo(name = "validate-content-package")
 public class ValidateContentPackageMojo extends AbstractMojo {
 	
+	private static String RANGE_REGEX = ".*(\\^|~|>|>=|<|<=|\\|\\|| - ).*";
+	
 	// conf properties file
 	@Parameter(property = "sourceFile")
 	protected String sourceFile;
-	
-	private static final Pattern VERSION_PATTERN = Pattern.compile(
-	    "^(\\s*[=><~^]*\\s*\\d+(\\.\\d+){0,2}(-[0-9A-Za-z-]+(\\.[0-9A-Za-z-]+)*)?(\\+[0-9A-Za-z-]+(\\.[0-9A-Za-z-]+)*)?)"
-	            + "(\\s*(-|\\|\\|)\\s*[=><~^]*\\s*\\d+(\\.\\d+){0,2}(-[0-9A-Za-z-]+(\\.[0-9A-Za-z-]+)*)?(\\+[0-9A-Za-z-]+(\\.[0-9A-Za-z-]+)*)?)*$");
 	
 	/**
 	 * Executes the property validation.
@@ -48,20 +49,25 @@ public class ValidateContentPackageMojo extends AbstractMojo {
 	 *
 	 * @throws IOException if an error occurs while reading the file
 	 */
-	protected void validateProperties() throws MojoExecutionException {
+	private void validateProperties() throws MojoExecutionException {
 		try (InputStream inputStream = new FileInputStream(sourceFile)) {
 			Properties properties = new Properties();
-			properties.load(input);
+			properties.load(inputStream);
 			
 			for (String key : properties.stringPropertyNames()) {
 				if ("name".equalsIgnoreCase(key)) {
 					continue;
 				}
+				
 				String value = properties.getProperty(key);
 				
-				if (isValidVersion(value.trim())) {
-					throw new MojoExecutionException(
-					        "Invalid version format for key: " + key + ", value: " + value + ", expected semver range");
+				if ("version".equalsIgnoreCase(key)) {
+					new Semver(value.trim(), Semver.SemverType.NPM);
+					continue;
+				}
+				if (!isValid(value)) {
+					throw new MojoExecutionException("Invalid version format for key: " + key + ", value: " + value
+					        + ", please provide version as a valid semver range");
 				}
 			}
 		}
@@ -70,14 +76,34 @@ public class ValidateContentPackageMojo extends AbstractMojo {
 		}
 	}
 	
-	/**
-	 * Checks if the given value is a valid version format.
-	 *
-	 * @param value the value to check
-	 * @return true if the value is a valid version format, false otherwise
-	 */
-	protected boolean isValidVersion(String value) {
-		return VERSION_PATTERN.matcher(value).matches();
+	protected boolean isValid(String value) {
+		if (isRange(value)) {
+			return isValidVersionRange(value);
+		}
+		return false;
+	}
+	
+	private boolean isRange(String input) {
+		return input.matches(RANGE_REGEX);
+	}
+	
+	private boolean isValidVersionRange(String range) {
+		try {
+			if (range.contains(" - ")) {
+				String[] parts = range.split(" - ");
+				new Semver(parts[0].trim(), Semver.SemverType.NPM);
+				new Semver(parts[1].trim(), Semver.SemverType.NPM);
+				return true;
+			} else {
+				// Additional checks for other range types (e.g., ^, ~, >, <)
+				// we might need to implement further checks or use a library that supports these
+				new Semver("1.0.0", Semver.SemverType.NPM).satisfies(range); // Dummy check
+				return true;
+			}
+		}
+		catch (SemverException e) {
+			return false;
+		}
 	}
 	
 }
