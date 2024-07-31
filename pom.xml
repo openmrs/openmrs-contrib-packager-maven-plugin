@@ -88,9 +88,9 @@
             <version>1.6</version>
         </dependency>
 	<dependency>
-    	    <groupId>com.vdurmont</groupId>
-            <artifactId>semver4j</artifactId>
-            <version>3.1.0</version>
+  	   <groupId>com.github.zafarkhaja</groupId>
+  	   <artifactId>java-semver</artifactId>
+  	   <version>0.10.2</version>
 	</dependency>
 
         <!-- Commons utilities -->

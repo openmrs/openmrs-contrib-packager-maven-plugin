@@ -19,19 +19,22 @@ import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.plugins.annotations.Mojo;
 import org.apache.maven.plugins.annotations.Parameter;
 
-import com.vdurmont.semver4j.Semver;
-import com.vdurmont.semver4j.SemverException;
+import com.github.zafarkhaja.semver.expr.ExpressionParser;
 
 /**
  * The purpose of this Mojo is to validate content properties file - validates the properties are
- * only in ranges. values like latest and next are not allowed.
+ * only in ranges. Values like latest and next are not allowed.
  */
 @Mojo(name = "validate-content-package")
 public class ValidateContentPackageMojo extends AbstractMojo {
 	
 	private static String RANGE_REGEX = ".*(\\^|~|>|>=|<|<=|\\|\\|| - ).*";
 	
-	// conf properties file
+	/**
+	 * The full path to the content.properties file, including the filename. The content.properties
+	 * file is similar to distro.properties configuration used in the validation process. For
+	 * example: "{project.basedir}/content.properties".
+	 */
 	@Parameter(property = "sourceFile")
 	protected String sourceFile;
 	
@@ -54,56 +57,39 @@ public class ValidateContentPackageMojo extends AbstractMojo {
 			Properties properties = new Properties();
 			properties.load(inputStream);
 			
+			if (!properties.containsKey("name") || !properties.containsKey("version")) {
+				throw new MojoExecutionException("The properties file must contain both 'name' and 'version' keys.");
+			}
+			
 			for (String key : properties.stringPropertyNames()) {
-				if ("name".equalsIgnoreCase(key)) {
-					continue;
-				}
-				
 				String value = properties.getProperty(key);
 				
-				if ("version".equalsIgnoreCase(key)) {
-					new Semver(value.trim(), Semver.SemverType.NPM);
-					continue;
-				}
-				if (!isValid(value)) {
-					throw new MojoExecutionException("Invalid version format for key: " + key + ", value: " + value
-					        + ", please provide version as a valid semver range");
+				if (key.startsWith("omod") || key.startsWith("owa") || key.startsWith("spa.frontend")) {
+					if (!isValid(value)) {
+						throw new MojoExecutionException("Invalid SemVer format for key: " + key + ", value: " + value
+						        + ", Valid semver format expected");
+					}
 				}
 			}
 		}
 		catch (Exception e) {
-			throw new MojoExecutionException(sourceFile + "-" + e.getMessage());
+			throw new MojoExecutionException(sourceFile + " - " + e.getMessage());
 		}
 	}
 	
+	/**
+	 * Validates whether a given value is a valid SemVer expression or range.
+	 *
+	 * @param value the value to validate
+	 * @return true if the value is a valid SemVer expression or range, false otherwise
+	 */
 	protected boolean isValid(String value) {
-		if (isRange(value)) {
-			return isValidVersionRange(value);
-		}
-		return false;
-	}
-	
-	private boolean isRange(String input) {
-		return input.matches(RANGE_REGEX);
-	}
-	
-	private boolean isValidVersionRange(String range) {
 		try {
-			if (range.contains(" - ")) {
-				String[] parts = range.split(" - ");
-				new Semver(parts[0].trim(), Semver.SemverType.NPM);
-				new Semver(parts[1].trim(), Semver.SemverType.NPM);
-				return true;
-			} else {
-				// Additional checks for other range types (e.g., ^, ~, >, <)
-				// we might need to implement further checks or use a library that supports these
-				new Semver("1.0.0", Semver.SemverType.NPM).satisfies(range); // Dummy check
-				return true;
-			}
+			ExpressionParser.newInstance().parse(value);
+			return true;
 		}
-		catch (SemverException e) {
+		catch (Exception e) {
 			return false;
 		}
 	}
-	
 }
