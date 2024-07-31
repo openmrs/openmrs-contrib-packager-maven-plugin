@@ -65,5 +65,3 @@ nb-configuration.xml
 !.travis.yml
 *~
 #############
-
-/bin/
