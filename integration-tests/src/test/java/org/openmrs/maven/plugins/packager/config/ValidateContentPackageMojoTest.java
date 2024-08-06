@@ -35,6 +35,7 @@ public class ValidateContentPackageMojoTest {
 		MockitoAnnotations.initMocks(this);
 	}
 	
+	@Test
 	public void executeValidContentPropertiesFileWithoutErrors() throws Exception {
 		// setup
 		String validPropertiesFile = "src/test/resources/config-test-child/valid-content.properties";
@@ -42,10 +43,10 @@ public class ValidateContentPackageMojoTest {
 		// replay
 		mojo.execute();
 		
-		// verify
-		// No exception should be thrown
+		// verify no exception should be thrown
 	}
 	
+	@Test
 	public void executeInvalidContentPropertiesFormatWithException() throws Exception {
 		// setup
 		String invalidPropertiesFile = "src/test/resources/config-test-child/invalid-content.properties";
