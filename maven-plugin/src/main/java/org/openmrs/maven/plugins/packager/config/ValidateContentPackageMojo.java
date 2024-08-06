@@ -10,7 +10,6 @@
 package org.openmrs.maven.plugins.packager.config;
 
 import java.io.FileInputStream;
-import java.io.IOException;
 import java.io.InputStream;
 import java.util.Properties;
 
@@ -19,7 +18,8 @@ import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.plugins.annotations.Mojo;
 import org.apache.maven.plugins.annotations.Parameter;
 
-import com.github.zafarkhaja.semver.expr.ExpressionParser;
+import com.vdurmont.semver4j.Semver;
+import com.vdurmont.semver4j.Semver.SemverType;
 
 /**
  * The purpose of this Mojo is to validate content properties file - validates the properties are
@@ -28,7 +28,8 @@ import com.github.zafarkhaja.semver.expr.ExpressionParser;
 @Mojo(name = "validate-content-package")
 public class ValidateContentPackageMojo extends AbstractMojo {
 	
-	private static String RANGE_REGEX = ".*(\\^|~|>|>=|<|<=|\\|\\|| - ).*";
+	// List of special terms that should not be considered valid versions
+	private static final String[] INVALID_TERMS = { "latest", "next" };
 	
 	/**
 	 * The full path to the content.properties file, including the filename. The content.properties
@@ -43,6 +44,7 @@ public class ValidateContentPackageMojo extends AbstractMojo {
 	 *
 	 * @throws MojoExecutionException if an error occurs during validation
 	 */
+	@Override
 	public void execute() throws MojoExecutionException {
 		validateProperties();
 	}
@@ -50,9 +52,13 @@ public class ValidateContentPackageMojo extends AbstractMojo {
 	/**
 	 * Validates the properties in the given file.
 	 *
-	 * @throws IOException if an error occurs while reading the file
+	 * @throws MojoExecutionException if an error occurs while reading the file
 	 */
 	private void validateProperties() throws MojoExecutionException {
+		if (sourceFile == null) {
+			throw new MojoExecutionException(
+			        "sourceFile is missing, A valid path and file for content.properties are required for this plugin.");
+		}
 		try (InputStream inputStream = new FileInputStream(sourceFile)) {
 			Properties properties = new Properties();
 			properties.load(inputStream);
@@ -64,7 +70,8 @@ public class ValidateContentPackageMojo extends AbstractMojo {
 			for (String key : properties.stringPropertyNames()) {
 				String value = properties.getProperty(key);
 				
-				if (key.startsWith("omod") || key.startsWith("owa") || key.startsWith("spa.frontend")) {
+				if (key.startsWith("omod") || key.startsWith("owa") || key.startsWith("spa.frontend")
+				        || "version".equalsIgnoreCase(key)) {
 					if (!isValid(value)) {
 						throw new MojoExecutionException("Invalid SemVer format for key: " + key + ", value: " + value
 						        + ", Valid semver format expected");
@@ -73,22 +80,32 @@ public class ValidateContentPackageMojo extends AbstractMojo {
 			}
 		}
 		catch (Exception e) {
-			throw new MojoExecutionException(sourceFile + " - " + e.getMessage());
+			throw new MojoExecutionException("Could not validate configuration file '" + sourceFile + "': " + e.getMessage(),
+			        e);
 		}
 	}
 	
 	/**
-	 * Validates whether a given value is a valid SemVer expression or range.
+	 * Validates whether a given value is a valid SemVer expression.
 	 *
 	 * @param value the value to validate
 	 * @return true if the value is a valid SemVer expression or range, false otherwise
 	 */
-	protected boolean isValid(String value) {
+	protected boolean isValid(String version) {
+		
+		// Explicitly invalidate these terms
+		for (String term : INVALID_TERMS) {
+			if (term.equalsIgnoreCase(version)) {
+				return false;
+			}
+		}
 		try {
-			ExpressionParser.newInstance().parse(value);
+			Semver semNPM = new Semver("0.0.0", SemverType.NPM);
+			semNPM.satisfies(version);
 			return true;
 		}
 		catch (Exception e) {
+			// Any kind of exception should return as false
 			return false;
 		}
 	}

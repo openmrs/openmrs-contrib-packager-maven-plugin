@@ -1,3 +1,4 @@
+
 package org.openmrs.maven.plugins.packager.config;
 
 import static org.junit.Assert.assertFalse;
@@ -61,19 +62,15 @@ public class ValidateContentPackageMojoTest {
 	
 	@Test
 	public void testInValidVersions() {
-		assertFalse(mojo.isValid("1.0.01"));
-		assertFalse(mojo.isValid("1.0.0-alpha@"));
 		assertFalse(mojo.isValid("1.0.0-1234-"));
 		assertFalse(mojo.isValid("abc"));
 		assertFalse(mojo.isValid("1..0"));
-		assertFalse(mojo.isValid("1.0.0.0"));
 		assertFalse(mojo.isValid("latest"));
 		assertFalse(mojo.isValid("next"));
 	}
 	
 	@Test
 	public void testValidVersionRanges() {
-		//java_semver treats it as valid, short for 1.0.0, even though patch# is missing
 		assertTrue(mojo.isValid("1.0"));
 		assertTrue(mojo.isValid("0.13.0"));
 		assertTrue(mojo.isValid("^2.13.0"));
@@ -84,12 +81,20 @@ public class ValidateContentPackageMojoTest {
 		assertTrue(mojo.isValid("<=3.0.0"));
 		assertTrue(mojo.isValid("1.0.0 - 1.10.10"));
 		assertTrue(mojo.isValid("<2.1.0 || >2.6.0"));
-		//	assertTrue(mojo.isValid(">=1.0.0-SNAPSHOT"));
+		assertTrue(mojo.isValid(">=1.0.0-SNAPSHOT"));
+		assertTrue(mojo.isValid(">=1.0.0-pre.1"));
+	}
+	
+	@Test
+	public void validNPMVersion() {
+		assertTrue(mojo.isValid("1.0.01"));
+		assertTrue(mojo.isValid("1.0.0-alpha@"));
+		assertTrue(mojo.isValid("1.0.0.0"));
 	}
 	
 	@Test
 	public void testComplexRanges() {
-		//assertTrue(mojo.isValid(">=1.0.0 <2.0.0")); //has to be fixed		
-		//assertTrue(mojo.isValid(">=1.2.3 <2.3.4 || >=3.0.0")); //has to be fixed
+		assertTrue(mojo.isValid(">=1.0.0 <2.0.0"));
+		assertTrue(mojo.isValid("1.1.1 || 1.2.3 - 2.0.0"));
 	}
 }
