@@ -37,28 +37,20 @@ public class ValidateContentPackageMojoTest {
 	
 	@Test
 	public void executeValidContentPropertiesFileWithoutErrors() throws Exception {
-		// setup
+		
 		String validPropertiesFile = "src/test/resources/config-test-child/valid-content.properties";
 		mojo.sourceFile = validPropertiesFile;
-		// replay
 		mojo.execute();
-		
-		// verify no exception should be thrown
+		//no exception is thrown
 	}
 	
-	@Test
+	@Test(expected = MojoExecutionException.class)
 	public void executeInvalidContentPropertiesFormatWithException() throws Exception {
-		// setup
+		
 		String invalidPropertiesFile = "src/test/resources/config-test-child/invalid-content.properties";
 		mojo.sourceFile = invalidPropertiesFile;
-		
-		try {
-			mojo.execute();
-		}
-		catch (MojoExecutionException e) {
-			assertTrue("MojoExecutionException raised", true);
-		}
-		
+		mojo.execute();
+		//exception is thrown
 	}
 	
 	@Test

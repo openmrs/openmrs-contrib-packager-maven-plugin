@@ -73,8 +73,7 @@ public class ValidateContentPackageMojo extends AbstractMojo {
 				if (key.startsWith("omod") || key.startsWith("owa") || key.startsWith("spa.frontend")
 				        || "version".equalsIgnoreCase(key)) {
 					if (!isValid(value)) {
-						throw new MojoExecutionException("Invalid SemVer format for key: " + key + ", value: " + value
-						        + ", Valid semver format expected");
+						throw new MojoExecutionException("Invalid SemVer format for key: " + key + ", value: " + value);
 					}
 				}
 			}
