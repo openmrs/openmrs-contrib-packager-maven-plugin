@@ -88,9 +88,9 @@
 			<version>1.6</version>
 		</dependency>
 		<dependency>
-			<groupId>com.vdurmont</groupId>
-			<artifactId>semver4j</artifactId>
-			<version>3.1.0</version>
+    		<groupId>org.semver4j</groupId>
+    		<artifactId>semver4j</artifactId>
+    		<version>5.3.0</version>
 		</dependency>
 
 		<!-- Commons utilities -->
@@ -200,6 +200,7 @@
 			<name>OpenMRS Snapshots Repo</name>
 			<url>https://mavenrepo.openmrs.org/nexus/content/repositories/snapshots</url>
 		</repository>
+	
 	</repositories>
 
 	<distributionManagement>

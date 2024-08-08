@@ -18,8 +18,7 @@ import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.plugins.annotations.Mojo;
 import org.apache.maven.plugins.annotations.Parameter;
 
-import com.vdurmont.semver4j.Semver;
-import com.vdurmont.semver4j.Semver.SemverType;
+import org.semver4j.Semver;
 
 /**
  * The purpose of this Mojo is to validate content properties file - validates the properties are
@@ -99,8 +98,7 @@ public class ValidateContentPackageMojo extends AbstractMojo {
 			}
 		}
 		try {
-			Semver semNPM = new Semver("0.0.0", SemverType.NPM);
-			semNPM.satisfies(version);
+			new Semver(version);			
 			return true;
 		}
 		catch (Exception e) {
