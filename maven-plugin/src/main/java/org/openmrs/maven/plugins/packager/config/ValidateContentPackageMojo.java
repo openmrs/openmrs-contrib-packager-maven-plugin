@@ -20,6 +20,7 @@ import org.apache.maven.plugins.annotations.Parameter;
 
 import org.semver4j.Semver;
 
+
 /**
  * The purpose of this Mojo is to validate content properties file - validates the properties are
  * only in ranges. Values like latest and next are not allowed.
@@ -98,7 +99,7 @@ public class ValidateContentPackageMojo extends AbstractMojo {
 			}
 		}
 		try {
-			new Semver(version);			
+			new Semver(version);
 			return true;
 		}
 		catch (Exception e) {
