@@ -91,13 +91,13 @@ public class ValidateContentPackageMojo extends AbstractMojo {
 	 * @return true if the value is a valid SemVer expression or range, false otherwise
 	 */
 	protected boolean isValid(String version) {
-		
 		// Explicitly invalidate these terms
 		for (String term : INVALID_TERMS) {
 			if (term.equalsIgnoreCase(version)) {
 				return false;
 			}
 		}
+		
 		try {
 			new Semver(version);
 			return true;
