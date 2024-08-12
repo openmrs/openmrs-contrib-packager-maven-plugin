@@ -117,7 +117,7 @@
 		<dependency>
 			<groupId>org.openmrs.module</groupId>
 			<artifactId>initializer-validator</artifactId>
-			<version>2.5.2</version>
+			<version>2.7.0</version>
 		</dependency>
 
 		<!-- For reading YAML and JSON files -->
@@ -180,39 +180,30 @@
 
 	<repositories>
 		<repository>
-			<id>mks-nexus-public</id>
-			<url>https://nexus.mekomsolutions.net/repository/maven-public/</url>
-		</repository>
-		<repository>
-			<id>mks-nexus-snapshots</id>
-			<url>https://nexus.mekomsolutions.net/repository/maven-snapshots/</url>
-			<snapshots>
-				<enabled>true</enabled>
-			</snapshots>
-		</repository>
-		<repository>
 			<id>openmrs-repo-releases</id>
 			<name>OpenMRS Releases Repo</name>
-			<url>https://mavenrepo.openmrs.org/nexus/content/repositories/releases</url>
+			<url>https://mavenrepo.openmrs.org/public</url>
 		</repository>
 		<repository>
 			<id>openmrs-repo-snapshots</id>
 			<name>OpenMRS Snapshots Repo</name>
-			<url>https://mavenrepo.openmrs.org/nexus/content/repositories/snapshots</url>
+			<url>https://mavenrepo.openmrs.org/snapshots</url>
+			<snapshots>
+				<enabled>true</enabled>
+			</snapshots>
 		</repository>
-
 	</repositories>
 
 	<distributionManagement>
 		<repository>
 			<id>openmrs-repo-releases</id>
 			<name>OpenMRS Releases Repo</name>
-			<url>https://mavenrepo.openmrs.org/nexus/content/repositories/releases</url>
+			<url>https://mavenrepo.openmrs.org/releases</url>
 		</repository>
 		<snapshotRepository>
 			<id>openmrs-repo-snapshots</id>
 			<name>OpenMRS Snapshots Repo</name>
-			<url>https://mavenrepo.openmrs.org/nexus/content/repositories/snapshots</url>
+			<url>https://mavenrepo.openmrs.org/snapshots</url>
 		</snapshotRepository>
 	</distributionManagement>
 
