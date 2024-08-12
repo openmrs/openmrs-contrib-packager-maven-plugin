@@ -55,27 +55,31 @@ public class ValidateContentPackageMojoTest {
 	
 	@Test
 	public void testInValidVersions() {
-		assertFalse(mojo.isValid("1.0.0-1234-"));
-		assertFalse(mojo.isValid("abc"));
-		assertFalse(mojo.isValid("1..0"));
 		assertFalse(mojo.isValid("latest"));
 		assertFalse(mojo.isValid("next"));
+		
 	}
 	
-	@Test
 	public void testValidVersionRanges() {
 		assertTrue(mojo.isValid("1.0"));
+		assertTrue(mojo.isValid("0.13.0"));
 		assertTrue(mojo.isValid("0.13.0"));
 		assertTrue(mojo.isValid("^2.13.0"));
 		assertTrue(mojo.isValid("~0.13.0"));
 		assertTrue(mojo.isValid(">0.13.0"));
 		assertTrue(mojo.isValid("<3.0.0"));
 		assertTrue(mojo.isValid(">=3.0.0"));
+		assertTrue(mojo.isValid(">=1.2.3"));
+		assertTrue(mojo.isValid(">=1.2"));
 		assertTrue(mojo.isValid("<=3.0.0"));
 		assertTrue(mojo.isValid("1.0.0 - 1.10.10"));
 		assertTrue(mojo.isValid("<2.1.0 || >2.6.0"));
 		assertTrue(mojo.isValid(">=1.0.0-SNAPSHOT"));
 		assertTrue(mojo.isValid(">=1.0.0-pre.1"));
+		//some edge cases
+		assertFalse(mojo.isValid("1.0.0-1234-"));
+		assertFalse(mojo.isValid("abc"));
+		assertFalse(mojo.isValid("1..0"));
 	}
 	
 	@Test
@@ -89,5 +93,9 @@ public class ValidateContentPackageMojoTest {
 	public void testComplexRanges() {
 		assertTrue(mojo.isValid(">=1.0.0 <2.0.0"));
 		assertTrue(mojo.isValid("1.1.1 || 1.2.3 - 2.0.0"));
+		assertTrue(mojo.isValid(">=1.0.0 - <2.0.0"));
+		assertTrue(mojo.isValid("~2.1.5 || ~2.4.2 || >= 2.5-SNAPSHOT"));
+		assertTrue(mojo.isValid("1.1.1 || 1.2.3 ! 2.0.0"));
 	}
+	
 }

@@ -1,10 +1,10 @@
 /**
  * This Source Code Form is subject to the terms of the Mozilla Public License,
- * v. 2.0. If a copy of the MPL was not distributed with this file, You can
+ * v. 2.0. If a copy of the MPL was not distributed with this file, you can
  * obtain one at http://mozilla.org/MPL/2.0/. OpenMRS is also distributed under
  * the terms of the Healthcare Disclaimer located at http://openmrs.org/license.
  *
- * Copyright (C) OpenMRS Inc. OpenMRS is a registered trademark and the OpenMRS
+ * Copyright (C) OpenMRS Inc. OpenMRS is a registered trademark, and the OpenMRS
  * graphic logo is a trademark of OpenMRS Inc.
  */
 package org.openmrs.maven.plugins.packager.config;
@@ -17,24 +17,23 @@ import org.apache.maven.plugin.AbstractMojo;
 import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.plugins.annotations.Mojo;
 import org.apache.maven.plugins.annotations.Parameter;
-
 import org.semver4j.Semver;
-
+import org.semver4j.SemverException;
 
 /**
- * The purpose of this Mojo is to validate content properties file - validates the properties are
- * only in ranges. Values like latest and next are not allowed.
+ * Mojo to validate content properties file - ensures the properties are only within allowed ranges.
+ * Values like "latest" and "next" are not permitted.
  */
 @Mojo(name = "validate-content-package")
 public class ValidateContentPackageMojo extends AbstractMojo {
 	
-	// List of special terms that should not be considered valid versions
+	// List of terms that are not valid versions
 	private static final String[] INVALID_TERMS = { "latest", "next" };
 	
 	/**
-	 * The full path to the content.properties file, including the filename. The content.properties
-	 * file is similar to distro.properties configuration used in the validation process. For
-	 * example: "{project.basedir}/content.properties".
+	 * The full path to the content.properties file, including the filename. This file is similar to
+	 * distro.properties used in the validation process. For example:
+	 * "{project.basedir}/content.properties".
 	 */
 	@Parameter(property = "sourceFile")
 	protected String sourceFile;
@@ -57,7 +56,7 @@ public class ValidateContentPackageMojo extends AbstractMojo {
 	private void validateProperties() throws MojoExecutionException {
 		if (sourceFile == null) {
 			throw new MojoExecutionException(
-			        "sourceFile is missing, A valid path and file for content.properties are required for this plugin.");
+			        "sourceFile is missing. A valid path and file for content.properties are required for this plugin.");
 		}
 		try (InputStream inputStream = new FileInputStream(sourceFile)) {
 			Properties properties = new Properties();
@@ -85,25 +84,27 @@ public class ValidateContentPackageMojo extends AbstractMojo {
 	}
 	
 	/**
-	 * Validates whether a given value is a valid SemVer expression.
+	 * Validates whether a given value is a valid SemVer expression. If the range expression
+	 * satisfies(true or false), it is considered valid. If an exception occurs, the range
+	 * expression is invalid.
 	 *
-	 * @param value the value to validate
+	 * @param versionOrRange the value to validate
 	 * @return true if the value is a valid SemVer expression or range, false otherwise
 	 */
-	protected boolean isValid(String version) {
+	protected boolean isValid(String versionOrRange) {
 		
-		// Explicitly invalidate these terms
 		for (String term : INVALID_TERMS) {
-			if (term.equalsIgnoreCase(version)) {
+			if (term.equalsIgnoreCase(versionOrRange)) {
 				return false;
 			}
 		}
+		
 		try {
-			new Semver(version);
+			Semver semver = new Semver("0.0.0");
+			semver.satisfies(versionOrRange);
 			return true;
 		}
-		catch (Exception e) {
-			// Any kind of exception should return as false
+		catch (SemverException e) {
 			return false;
 		}
 	}
