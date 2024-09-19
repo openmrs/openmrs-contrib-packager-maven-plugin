@@ -45,14 +45,6 @@
     <pluginRepositories>
         <pluginRepository>
             <id>openmrs-repo</id>
-            <name>OpenMRS Nexus Repository</name>
-            <url>https://mavenrepo.openmrs.org/nexus/content/repositories/public</url>
-            <snapshots>
-                <enabled>false</enabled>
-            </snapshots>
-        </pluginRepository>
-        <pluginRepository>
-            <id>openmrs-repo</id>
             <name>OpenMRS Public Repository</name>
             <url>https://mavenrepo.openmrs.org/public</url>
         </pluginRepository>
