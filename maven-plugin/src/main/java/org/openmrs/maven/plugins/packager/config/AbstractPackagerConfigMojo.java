@@ -29,6 +29,7 @@ import org.apache.maven.plugin.AbstractMojo;
 import org.apache.maven.plugin.BuildPluginManager;
 import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.plugins.annotations.Component;
+import org.apache.maven.plugins.annotations.Parameter;
 import org.apache.maven.project.MavenProject;
 import org.twdata.maven.mojoexecutor.MojoExecutor;
 
@@ -37,10 +38,10 @@ import org.twdata.maven.mojoexecutor.MojoExecutor;
  */
 public abstract class AbstractPackagerConfigMojo extends AbstractMojo {
 
-	@Component
+	@Parameter(defaultValue = "${project}", readonly = true)
 	private MavenProject mavenProject;
 
-	@Component
+	@Parameter(defaultValue = "${session}", readonly = true)
 	private MavenSession mavenSession;
 
 	@Component
