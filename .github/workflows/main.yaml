@@ -2,17 +2,17 @@ name: Build with Maven
 
 on:
   push:
-    branches: [ master ]
+    branches: [master]
   pull_request:
-    branches: [ master ]
+    branches: [master]
   workflow_dispatch:
 
 jobs:
   build:
     strategy:
       matrix:
-        platform: [ ubuntu-latest ]
-        java-version: [ 8 ]
+        platform: [ubuntu-latest]
+        java-version: [8]
 
     runs-on: ${{ matrix.platform }}
     env:
@@ -24,9 +24,9 @@ jobs:
       - name: Set up JDK
         uses: actions/setup-java@v4
         with:
-          distribution: 'temurin'
+          distribution: "temurin"
           java-version: ${{ matrix.java-version }}
       - name: Build with Maven
         id: build_with_maven
         run: |
-          mvn clean verify --batch-mode --file pom.xml
+          mvn -U clean verify --batch-mode --file pom.xml
